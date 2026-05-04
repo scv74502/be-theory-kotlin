@@ -29,39 +29,13 @@
 - 추후 개선 여지(있다면):
 
 
-## 🏗️ Design Overview
+## 🤔 고민한 점 / 막혔던 부분
 <!--
-구성 요소와 책임을 간단히 정리한다.
+학습 과정에서 어려웠던 것, 아직 해결 못한 것을 자유롭게 기록한다.
 -->
 
-### 변경 범위
-- 영향 받는 모듈/도메인:
-- 신규 추가:
-- 제거/대체:
 
-### 주요 컴포넌트 책임
-- `ComponentA`: 
-- `ComponentB`: 
-- `ComponentC`: 
-
-
-## 🔁 Flow Diagram
+## 🙋 기타
 <!--
-가능하면 Mermaid로 작성한다. (시퀀스/플로우 중 택1)
-"핵심 경로"를 먼저 그리고, 예외 흐름은 아래에 분리한다.
+자유롭게 남기고 싶은 말을 작성한다.
 -->
-
-### Main Flow
-```mermaid
-sequenceDiagram
-  autonumber
-  participant Client
-  participant API
-  participant Service
-  participant DB
-  Client->>API: request
-  API->>Service: command/query
-  Service->>DB: read/write
-  DB-->>Service: result
-  Service-->>API: response
-  API-->>Client: response
