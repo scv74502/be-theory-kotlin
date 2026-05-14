@@ -2,6 +2,8 @@ package com.loopers.interfaces.api.user
 
 import com.loopers.application.user.UserFacade
 import com.loopers.interfaces.api.ApiResponse
+import com.loopers.interfaces.api.user.request.SignUpRequest
+import com.loopers.interfaces.api.user.response.SignUpResponse
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
@@ -10,17 +12,17 @@ import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
-@RequestMapping("/api/v1/users")
-class UserV1Controller(
+@RequestMapping("/api/users")
+class UserController(
     private val userFacade: UserFacade,
-) : UserV1ApiSpec {
+) : UserApiSpec {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     override fun signUp(
-        @RequestBody request: UserV1Dto.SignUpRequest,
-    ): ApiResponse<UserV1Dto.SignUpResponse> {
+        @RequestBody request: SignUpRequest,
+    ): ApiResponse<SignUpResponse> {
         return userFacade.signUp(request.toCriteria())
-            .let { UserV1Dto.SignUpResponse.from(it) }
+            .let { SignUpResponse.from(it) }
             .let { ApiResponse.success(it) }
     }
 }
