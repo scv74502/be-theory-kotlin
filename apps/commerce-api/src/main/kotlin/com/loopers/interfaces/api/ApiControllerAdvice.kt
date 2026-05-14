@@ -8,6 +8,7 @@ import com.loopers.support.error.ErrorType
 import org.slf4j.LoggerFactory
 import org.springframework.http.ResponseEntity
 import org.springframework.http.converter.HttpMessageNotReadableException
+import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.MissingServletRequestParameterException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
@@ -82,6 +83,14 @@ class ApiControllerAdvice {
         }
 
         return failureResponse(errorType = ErrorType.BAD_REQUEST, errorMessage = errorMessage)
+    }
+
+    @ExceptionHandler
+    fun handleBadRequest(e: MethodArgumentNotValidException): ResponseEntity<ApiResponse<*>> {
+        val message = e.bindingResult.fieldErrors.joinToString("; ") { fe ->
+            "'${fe.field}': ${fe.defaultMessage ?: "유효하지 않은 값입니다."}"
+        }
+        return failureResponse(errorType = ErrorType.BAD_REQUEST, errorMessage = message)
     }
 
     @ExceptionHandler

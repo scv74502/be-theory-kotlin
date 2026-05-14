@@ -4,6 +4,7 @@ import com.loopers.application.user.UserFacade
 import com.loopers.interfaces.api.ApiResponse
 import com.loopers.interfaces.api.user.request.SignUpRequest
 import com.loopers.interfaces.api.user.response.SignUpResponse
+import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
@@ -19,7 +20,7 @@ class UserController(
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     override fun signUp(
-        @RequestBody request: SignUpRequest,
+        @Valid @RequestBody request: SignUpRequest,
     ): ApiResponse<SignUpResponse> {
         return userFacade.signUp(request.toCriteria())
             .let { SignUpResponse.from(it) }

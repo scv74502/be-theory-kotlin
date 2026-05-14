@@ -1,14 +1,12 @@
 package com.loopers.domain.user
 
 import com.loopers.domain.user.UserSteps.Companion.기본_생년월일
-import com.loopers.domain.user.UserSteps.Companion.기본_인코더
 import com.loopers.domain.user.UserSteps.Companion.기본_이름
 import com.loopers.domain.user.UserSteps.Companion.기본_로그인_ID
 import com.loopers.domain.user.UserSteps.Companion.기본_비밀번호
 import com.loopers.domain.user.UserSteps.Companion.기본_이메일
 import com.loopers.domain.user.UserSteps.Companion.비밀번호_생성
 import com.loopers.domain.user.UserSteps.Companion.회원_도메인_생성
-import com.loopers.domain.user.vo.Password
 import com.loopers.support.error.CoreException
 import com.loopers.support.error.ErrorType
 import org.assertj.core.api.Assertions.assertThat
@@ -66,37 +64,37 @@ class UserTest {
 
     @Test
     fun `비밀번호가_8자_미만이면_BAD_REQUEST가_발생한다`() {
-        val ex = assertThrows<CoreException> { Password.of("Ab1!abc", 기본_생년월일, 기본_인코더()) }
+        val ex = assertThrows<CoreException> { 비밀번호_생성(rawPassword = "Ab1!abc") }
         assertThat(ex.errorType).isEqualTo(ErrorType.BAD_REQUEST)
     }
 
     @Test
     fun `비밀번호가_16자_초과면_BAD_REQUEST가_발생한다`() {
-        val ex = assertThrows<CoreException> { Password.of("Ab1!" + "a".repeat(14), 기본_생년월일, 기본_인코더()) }
+        val ex = assertThrows<CoreException> { 비밀번호_생성(rawPassword = "Ab1!" + "a".repeat(14)) }
         assertThat(ex.errorType).isEqualTo(ErrorType.BAD_REQUEST)
     }
 
     @Test
     fun `비밀번호에_대문자가_없으면_BAD_REQUEST가_발생한다`() {
-        val ex = assertThrows<CoreException> { Password.of("password1!", 기본_생년월일, 기본_인코더()) }
+        val ex = assertThrows<CoreException> { 비밀번호_생성(rawPassword = "password1!") }
         assertThat(ex.errorType).isEqualTo(ErrorType.BAD_REQUEST)
     }
 
     @Test
     fun `비밀번호에_소문자가_없으면_BAD_REQUEST가_발생한다`() {
-        val ex = assertThrows<CoreException> { Password.of("PASSWORD1!", 기본_생년월일, 기본_인코더()) }
+        val ex = assertThrows<CoreException> { 비밀번호_생성(rawPassword = "PASSWORD1!") }
         assertThat(ex.errorType).isEqualTo(ErrorType.BAD_REQUEST)
     }
 
     @Test
     fun `비밀번호에_숫자가_없으면_BAD_REQUEST가_발생한다`() {
-        val ex = assertThrows<CoreException> { Password.of("Password!!", 기본_생년월일, 기본_인코더()) }
+        val ex = assertThrows<CoreException> { 비밀번호_생성(rawPassword = "Password!!") }
         assertThat(ex.errorType).isEqualTo(ErrorType.BAD_REQUEST)
     }
 
     @Test
     fun `비밀번호에_특수문자가_없으면_BAD_REQUEST가_발생한다`() {
-        val ex = assertThrows<CoreException> { Password.of("Password11", 기본_생년월일, 기본_인코더()) }
+        val ex = assertThrows<CoreException> { 비밀번호_생성(rawPassword = "Password11") }
         assertThat(ex.errorType).isEqualTo(ErrorType.BAD_REQUEST)
     }
 
