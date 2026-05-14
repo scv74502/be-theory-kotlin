@@ -97,6 +97,7 @@ subprojects {
         useJUnitPlatform()
         systemProperty("user.timezone", "Asia/Seoul")
         systemProperty("spring.profiles.active", "test")
+        systemProperty("api.version", System.getProperty("api.version") ?: "1.40")
         jvmArgs("-Xshare:off")
     }
 
