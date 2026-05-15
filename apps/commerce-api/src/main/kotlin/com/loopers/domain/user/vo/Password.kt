@@ -3,47 +3,50 @@ package com.loopers.domain.user.vo
 import com.loopers.domain.user.PasswordEncoder
 import com.loopers.support.error.CoreException
 import com.loopers.support.error.ErrorType
-import jakarta.persistence.Column
-import jakarta.persistence.Embeddable
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
-@Embeddable
 class Password private constructor(
-    @Column(name = "encoded_password", nullable = false)
     val encoded: String,
 ) {
     companion object {
-        private const val MIN_LENGTH = 8
-        private const val MAX_LENGTH = 16
+        // 8-16자 사이 영문과 특수문자, 숫자만 포함하는 정규식
+        private val PASSWORD_REGEX =
+            Regex("^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d)(?=.*[!@#$%^&*(),.?\":{}|<>])(?=\\S+$).{8,16}$")
         private val BIRTHDAY_TOKEN_PATTERNS = listOf("yyyyMMdd", "yyMMdd", "MMdd")
 
         fun of(raw: String, birthday: LocalDate, encoder: PasswordEncoder): Password {
-            if (raw.length !in MIN_LENGTH..MAX_LENGTH) {
-                throw CoreException(ErrorType.BAD_REQUEST, "비밀번호는 $MIN_LENGTH~${MAX_LENGTH}자여야 합니다.")
-            }
-            if (raw.any { it.isWhitespace() }) {
-                throw CoreException(ErrorType.BAD_REQUEST, "비밀번호에 공백을 포함할 수 없습니다.")
-            }
-            if (!raw.any { it.isUpperCase() }) {
-                throw CoreException(ErrorType.BAD_REQUEST, "비밀번호는 영문 대문자를 포함해야 합니다.")
-            }
-            if (!raw.any { it.isLowerCase() }) {
-                throw CoreException(ErrorType.BAD_REQUEST, "비밀번호는 영문 소문자를 포함해야 합니다.")
-            }
-            if (!raw.any { it.isDigit() }) {
-                throw CoreException(ErrorType.BAD_REQUEST, "비밀번호는 숫자를 포함해야 합니다.")
-            }
-            if (!raw.any { !it.isLetterOrDigit() }) {
-                throw CoreException(ErrorType.BAD_REQUEST, "비밀번호는 특수문자를 포함해야 합니다.")
-            }
-            val containsBirthdayToken = BIRTHDAY_TOKEN_PATTERNS.any { pattern ->
+            validate(raw, birthday)
+            return Password(encoder.encode(raw))
+        }
+
+        fun fromEncoded(encoded: String): Password = Password(encoded)
+
+        private fun validate(raw: String, birthday: LocalDate) {
+            validateFormat(raw)
+            validateNotContainsBirthday(raw, birthday)
+        }
+
+        private fun validateFormat(raw: String) {
+            validate(
+                PASSWORD_REGEX.matches(raw),
+                "비밀번호는 8~16자의 영문 대문자, 소문자, 숫자, 특수문자를 포함해야 하며 공백을 포함할 수 없습니다.",
+            )
+        }
+
+        private fun validateNotContainsBirthday(raw: String, birthday: LocalDate) {
+            validate(!containsBirthdayToken(raw, birthday), "비밀번호에 생년월일을 포함할 수 없습니다.")
+        }
+
+        private fun containsBirthdayToken(raw: String, birthday: LocalDate): Boolean =
+            BIRTHDAY_TOKEN_PATTERNS.any { pattern ->
                 raw.contains(birthday.format(DateTimeFormatter.ofPattern(pattern)))
             }
-            if (containsBirthdayToken) {
-                throw CoreException(ErrorType.BAD_REQUEST, "비밀번호에 생년월일을 포함할 수 없습니다.")
+
+        private fun validate(condition: Boolean, message: String) {
+            if (!condition) {
+                throw CoreException(ErrorType.BAD_REQUEST, message)
             }
-            return Password(encoder.encode(raw))
         }
     }
 }

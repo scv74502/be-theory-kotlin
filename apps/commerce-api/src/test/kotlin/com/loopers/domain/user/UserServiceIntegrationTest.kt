@@ -60,7 +60,7 @@ class UserServiceIntegrationTest
             userService.signUp(회원가입_커맨드_생성(rawPassword = 기본_비밀번호))
 
             val saved = userJpaRepository.findByLoginId(기본_로그인_ID)
-            assertThat(saved?.password?.encoded).isNotEqualTo(기본_비밀번호)
+            assertThat(saved?.encodedPassword).isNotEqualTo(기본_비밀번호)
         }
 
         @Test

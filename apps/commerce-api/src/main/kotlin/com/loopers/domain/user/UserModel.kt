@@ -1,43 +1,18 @@
 package com.loopers.domain.user
 
-import com.loopers.domain.BaseEntity
 import com.loopers.domain.user.vo.Password
 import com.loopers.support.error.CoreException
 import com.loopers.support.error.ErrorType
-import jakarta.persistence.Column
-import jakarta.persistence.Embedded
-import jakarta.persistence.Entity
-import jakarta.persistence.Table
 import java.time.LocalDate
 
-@Entity
-@Table(name = "users")
 class UserModel(
-    loginId: String,
-    password: Password,
-    name: String,
-    birthday: LocalDate,
-    email: String,
-) : BaseEntity() {
-    @Column(name = "login_id", unique = true, nullable = false)
-    var loginId: String = loginId
-        protected set
-
-    @Embedded
-    var password: Password = password
-        protected set
-
-    @Column(nullable = false)
-    var name: String = name
-        protected set
-
-    @Column(nullable = false)
-    var birthday: LocalDate = birthday
-        protected set
-
-    @Column(nullable = false)
-    var email: String = email
-        protected set
+    val id: Long = 0,
+    val loginId: String,
+    val password: Password,
+    val name: String,
+    val birthday: LocalDate,
+    val email: String,
+) {
 
     init {
         if (!LOGIN_ID_PATTERN.matches(loginId)) {
