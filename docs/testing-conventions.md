@@ -4,7 +4,7 @@
 
 ## 1. 파일 분류 규칙
 
-테스트는 **세 가지 파일**로 분류한다. 디렉토리가 아닌 **파일명 suffix**로 구분한다.
+테스트는 **세 가지 파일**로 분류한다. 기본 구분은 **파일명 suffix**이며, 디렉토리 분류는 도메인별로 선택 적용한다.
 
 | 종류 | 파일명 패턴 | 어노테이션 | 설명 |
 |---|---|---|---|
@@ -13,8 +13,13 @@
 | E2E/API | `<Aggregate>ApiE2ETest.kt` | `ApiTest` 상속 | HTTP 호출까지 포함. `RANDOM_PORT` + `TestRestTemplate`. |
 
 위치:
-- 단위/통합: `src/test/kotlin/<package>/domain/<aggregate>/`
-- E2E: `src/test/kotlin/<package>/interfaces/api/`
+- 기본 단위/통합: `src/test/kotlin/<package>/domain/<aggregate>/`
+- 분류 적용 도메인 단위: `src/test/kotlin/<package>/domain/<aggregate>/unit/`
+- 분류 적용 도메인 통합: `src/test/kotlin/<package>/domain/<aggregate>/integration/`
+- 분류 적용 도메인 지원 코드: `src/test/kotlin/<package>/domain/<aggregate>/support/`
+- E2E/API: `src/test/kotlin/<package>/interfaces/api/`
+
+현재 `user` 도메인은 `unit/`, `integration/`, `support/` 분류를 적용한다. 이 분류는 기존 `src/test` 내부 package 정리이며 별도 Gradle source set 을 추가하지 않는다. E2E/API 테스트는 계속 `interfaces/api` 에 두고 `ApiTest` 를 상속한다.
 
 ## 2. 메서드 네이밍 규칙
 
@@ -34,7 +39,7 @@
 도메인 객체/요청 객체의 생성을 한 곳에 모은다. 기본값 활용으로 테스트 코드의 보일러플레이트를 제거한다.
 
 - 파일명: `<Aggregate>Steps.kt`
-- 위치: `src/test/kotlin/<package>/domain/<aggregate>/`
+- 위치: 기본 `src/test/kotlin/<package>/domain/<aggregate>/`, 분류 적용 도메인은 `src/test/kotlin/<package>/domain/<aggregate>/support/`
 - 구조: `class <Aggregate>Steps { companion object { ... } }` (또는 `object`도 가능)
 - 메서드는 한국어 백틱 + 기본값 인자
 - 책임: 객체/요청 빌더만. (RestAssured 같은 HTTP 호출 헬퍼는 본 프로젝트에서는 사용하지 않음 → TestRestTemplate 직접)

@@ -89,12 +89,15 @@ domain/<aggregate>/
 ### 디렉토리 정책
 - 현재는 `src/test` 를 기본 단위 테스트 영역으로 사용한다.
 - 테스트 패키지는 main 패키지 구조와 1:1 로 미러링한다.
-- 종류별 별도 디렉토리(`unit/`, `integration/`, `e2e/`)는 만들지 않는다.
-- 테스트 종류는 파일명 접미사로 식별한다.
+- 기본적으로 테스트 종류는 파일명 접미사로 식별하며, 종류별 하위 디렉토리는 필수로 만들지 않는다.
+- 도메인별로 테스트가 늘어나 분류가 필요한 경우, 별도 Gradle source set 을 추가하지 않고 기존 `src/test` 내부에서 `unit/`, `integration/`, `support/` 하위 패키지를 둘 수 있다.
+- 현재 `user` 도메인은 `domain/user/unit`, `domain/user/integration`, `domain/user/support` 분류를 적용한다.
+- API/E2E 테스트는 도메인 하위 `e2e/` 로 옮기지 않고 기존처럼 `interfaces/api` 패키지와 `ApiTest` 상속 구조를 유지한다.
 - 통합/E2E 테스트가 많아지면 별도 Gradle source set(`integrationTest`, `e2eTest`) 도입을 검토한다.
 
 ### 테스트 픽스처
-- **`*TestSteps`** (도메인 객체 빌더 — 기본값 + override 파라미터)는 **도메인 루트** `domain/<aggregate>/<Aggregate>TestSteps.kt` 에 둔다. 예: `domain/user/UserTestSteps.kt`.
+- **`*Steps` / `*TestSteps`** (도메인 객체 빌더 — 기본값 + override 파라미터)는 기본적으로 **도메인 루트** `domain/<aggregate>/<Aggregate>Steps.kt` 에 둔다.
+    - 테스트 분류를 적용한 도메인은 `domain/<aggregate>/support/<Aggregate>Steps.kt` 에 둘 수 있다. 예: `domain/user/support/UserSteps.kt`.
     - Kotlin `object` + default parameter 패턴. 메서드명은 한국어 백틱 사용 가능(예: `회원가입()`).
 - **fake/stub/공용 유틸**(예: 인메모리 리포지토리, 도메인 가로지르는 헬퍼)은 같은 도메인 아래 `support/` 패키지에 둔다(필요할 때만 생성).
 - 단순 호출용 헬퍼는 별도 파일로 만들지 않는다 — `*Test.kt` 내 private 함수면 충분.

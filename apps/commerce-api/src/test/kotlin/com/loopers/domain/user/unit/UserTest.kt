@@ -1,14 +1,14 @@
-package com.loopers.domain.user
+package com.loopers.domain.user.unit
 
-import com.loopers.domain.user.UserSteps.Companion.기본_생년월일
-import com.loopers.domain.user.UserSteps.Companion.기본_이름
-import com.loopers.domain.user.UserSteps.Companion.기본_로그인_ID
-import com.loopers.domain.user.UserSteps.Companion.기본_비밀번호
-import com.loopers.domain.user.UserSteps.Companion.기본_이메일
-import com.loopers.domain.user.UserSteps.Companion.비밀번호_생성
-import com.loopers.domain.user.UserSteps.Companion.회원_도메인_생성
 import com.loopers.domain.user.exception.InvalidPasswordException
 import com.loopers.domain.user.exception.InvalidUserException
+import com.loopers.domain.user.support.UserSteps.Companion.기본_로그인_ID
+import com.loopers.domain.user.support.UserSteps.Companion.기본_비밀번호
+import com.loopers.domain.user.support.UserSteps.Companion.기본_생년월일
+import com.loopers.domain.user.support.UserSteps.Companion.기본_이름
+import com.loopers.domain.user.support.UserSteps.Companion.기본_이메일
+import com.loopers.domain.user.support.UserSteps.Companion.비밀번호_생성
+import com.loopers.domain.user.support.UserSteps.Companion.회원_도메인_생성
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows

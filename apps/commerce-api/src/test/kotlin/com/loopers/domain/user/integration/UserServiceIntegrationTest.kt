@@ -1,17 +1,17 @@
-package com.loopers.domain.user
+package com.loopers.domain.user.integration
 
-import com.loopers.domain.user.UserSteps.Companion.기본_로그인_ID
-import com.loopers.domain.user.UserSteps.Companion.기본_비밀번호
-import com.loopers.domain.user.UserSteps.Companion.기본_생년월일
-import com.loopers.domain.user.UserSteps.Companion.기본_이름
-import com.loopers.domain.user.UserSteps.Companion.기본_이메일
-import com.loopers.domain.user.UserSteps.Companion.사용자_회원가입
 import com.loopers.domain.user.application.UserService
 import com.loopers.domain.user.application.command.UserChangePasswordCommand
 import com.loopers.domain.user.infrastructure.persistence.UserJpaRepository
 import com.loopers.domain.user.infrastructure.persistence.UserRepositoryImpl
 import com.loopers.domain.user.model.UserModel
 import com.loopers.domain.user.port.UserRepository
+import com.loopers.domain.user.support.UserSteps.Companion.기본_로그인_ID
+import com.loopers.domain.user.support.UserSteps.Companion.기본_비밀번호
+import com.loopers.domain.user.support.UserSteps.Companion.기본_생년월일
+import com.loopers.domain.user.support.UserSteps.Companion.기본_이름
+import com.loopers.domain.user.support.UserSteps.Companion.기본_이메일
+import com.loopers.domain.user.support.UserSteps.Companion.사용자_회원가입
 import com.loopers.domain.user.vo.Password
 import com.loopers.support.error.CoreException
 import com.loopers.support.error.ErrorType

@@ -1,11 +1,11 @@
-package com.loopers.domain.user
+package com.loopers.domain.user.unit
 
-import com.loopers.domain.user.UserSteps.Companion.기본_비밀번호
-import com.loopers.domain.user.UserSteps.Companion.저장된_회원_도메인_생성
 import com.loopers.domain.user.application.UserService
 import com.loopers.domain.user.application.command.UserChangePasswordCommand
 import com.loopers.domain.user.port.PasswordEncoder
 import com.loopers.domain.user.port.UserRepository
+import com.loopers.domain.user.support.UserSteps.Companion.기본_비밀번호
+import com.loopers.domain.user.support.UserSteps.Companion.저장된_회원_도메인_생성
 import com.loopers.support.error.CoreException
 import com.loopers.support.error.ErrorType
 import io.mockk.every

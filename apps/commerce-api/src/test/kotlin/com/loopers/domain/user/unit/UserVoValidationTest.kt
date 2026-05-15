@@ -1,8 +1,8 @@
-package com.loopers.domain.user
+package com.loopers.domain.user.unit
 
-import com.loopers.domain.user.UserSteps.Companion.비밀번호_생성
 import com.loopers.domain.user.exception.InvalidPasswordException
 import com.loopers.domain.user.exception.InvalidUserException
+import com.loopers.domain.user.support.UserSteps.Companion.비밀번호_생성
 import com.loopers.domain.user.vo.Birthday
 import com.loopers.domain.user.vo.Email
 import com.loopers.domain.user.vo.LoginId

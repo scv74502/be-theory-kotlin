@@ -1,4 +1,4 @@
-package com.loopers.domain.user
+package com.loopers.domain.user.support
 
 import com.loopers.domain.user.application.command.UserSignUpCommand
 import com.loopers.domain.user.model.UserModel
