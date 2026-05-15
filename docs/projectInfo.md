@@ -53,6 +53,27 @@ loopers-kotlin-spring-template/
     └── monitoring/
 ```
 
+### commerce-api 사용자 기능 패키지 구조
+
+사용자 기능은 기능 단위 응집을 우선해 `com.loopers.domain.user` 아래에 둔다.
+
+```
+domain/user/
+├── application/            # 유스케이스, command/info DTO, facade
+├── infrastructure/
+│   └── persistence/         # JPA Entity, Spring Data Repository, port 구현체
+├── presentation/            # Controller, API spec, request/response DTO
+│   └── auth/                # 사용자 인증 헤더, LoginUser resolver/config
+├── model/                   # UserModel 등 순수 도메인 모델
+├── vo/                      # LoginId, Password, Name, Birthday, Email
+├── port/                    # UserRepository, PasswordEncoder
+└── exception/               # 사용자 도메인/경계 예외
+```
+
+- 사용자 전용 `HandlerMethodArgumentResolver`, 인증 어노테이션, 요청 헤더 상수, WebMvc 설정은 `domain/user/presentation/auth` 에 둔다.
+- `UserModel` 은 VO 기반 POJO 로 유지한다.
+- JPA Entity 는 primitive column 매핑을 유지하고, infrastructure 경계에서 VO 와 변환한다.
+
 ## 자주 쓰는 명령
 
 ```bash
@@ -144,7 +165,7 @@ API 예외 응답 상태는 Spring 표준 `HttpStatus` 로 표현한다.
 }
 ```
 
-- request DTO 는 `interfaces/api/user/request/SignUpRequest` 를 사용한다.
+- request DTO 는 `domain/user/presentation/request/SignUpRequest` 를 사용한다.
 - `loginId`: 영문/숫자 4~20자, 이미 가입된 값은 사용할 수 없다.
 - `password`: 8~16자, 영문 대문자/소문자/숫자/특수문자 각 1개 이상, 생년월일 토큰(`yyyyMMdd`/`yyMMdd`/`MMdd`) 포함 불가.
 - `name`: 공백이 아닌 1~50자.
@@ -187,11 +208,14 @@ API 예외 응답 상태는 Spring 표준 `HttpStatus` 로 표현한다.
 | 이메일 | `Email` | RFC 5322 간이 형식 |
 
 - 도메인 루트 패키지: `com.loopers.domain.user`
-- 애그리거트 루트: `UserModel`
+- 애그리거트 루트: `domain/user/model/UserModel`
+- `UserModel` 의 사용자 속성은 `LoginId`, `Password`, `Name`, `Birthday`, `Email` VO 로 표현한다.
 - 비밀번호: `Password` VO 가 평문 규칙 검증과 인코딩 생성 책임을 보유하며, 생성 후에는 인코딩된 값만 보관.
-- 암호화 포트: `PasswordEncoder` ↔ BCrypt 어댑터(인프라)
-- 회원가입 진입점: `UserService.signUp(command)`
+- 암호화 포트: `domain/user/port/PasswordEncoder` ↔ BCrypt 어댑터(인프라)
+- 회원가입 진입점: `domain/user/application/UserService.signUp(command)`
+- `UserCommand`, `UserInfo`, `UserFacade`, `UserService` 는 사용자 application 계층에 둔다.
+- `UserRepository` 는 `domain/user/port` 에 두고, JPA 구현체는 `domain/user/infrastructure/persistence` 에 둔다.
 - 중복 로그인ID: `UserService` 가 사전 조회로 검증하고, 저장 시점 DB Unique constraint 충돌은
   `UserRepositoryImpl` 이 `DuplicateLoginIdException` 경계 예외로 변환한 뒤 `UserService` 가 409 비즈니스 에러로 변환한다.
-- 도메인 모델과 JPA Entity 는 분리한다. `UserModel`/`Password` 는 POJO 로 유지하고,
+- 도메인 모델과 JPA Entity 는 분리한다. `UserModel`/VO 는 POJO 로 유지하고,
   infrastructure 의 JPA Entity 가 테이블 매핑과 도메인 변환을 담당한다.

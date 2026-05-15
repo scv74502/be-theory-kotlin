@@ -9,6 +9,7 @@
 - **대원칙**: 방향성 및 주요 의사 결정은 개발자에게 제안만 할 수 있으며, 최종 승인된 사항을 기반으로 작업을 수행한다.
 - **중간 결과 보고**: AI 가 반복적인 동작을 하거나, 요청하지 않은 기능 구현 또는 테스트 삭제를 임의로 진행할 경우 개발자가 개입한다.
 - **설계 주도권 유지**: AI 는 방향성에 대한 제안을 할 수 있으나, 주요 설계 변경은 개발자의 승인을 받은 후 수행한다.
+- **규칙/구조 변경 시 문서 우선**: 사용자가 명시적으로 개발 규칙, 패키지 구조, 아키텍처 방향 변경을 지시하거나 승인한 경우, 코드 변경 계획과 별도로 관련 규칙 문서(`docs/groundRules.md`)와 구조/요구사항 문서(`docs/projectInfo.md`) 변경안을 먼저 제안한다. 사용자 승인 후 문서를 갱신하고, 그 문서를 기준으로 코드 작업을 수행한다.
 
 ### 개발 Workflow - TDD (Red > Green > Refactor)
 - 모든 테스트는 3A 원칙(Arrange - Act - Assert)으로 작성한다.
@@ -49,6 +50,8 @@
 - 사용자, 상품처럼 개별 도메인 기능은 `domain/<aggregate>/application`, `domain/<aggregate>/infrastructure`, `domain/<aggregate>/presentation` 아래에 둔다.
 - 여러 기능에서 공유하는 예외, 상수, 웹 공통 처리는 루트의 `common/**` 아래에 둔다.
 - 순수 도메인 모델은 `domain/<aggregate>/model`, `vo`, `service`, `port` 에 두고, Spring/JPA/presentation 의존성을 넣지 않는다.
+- 특정 도메인에서만 사용하는 WebMvcConfigurer, HandlerMethodArgumentResolver, 인증 어노테이션, 요청 헤더 상수는 해당 도메인의 `presentation` 아래에 둔다.
+- JPA Entity 의 컬럼 타입은 단순 매핑을 우선하고, 도메인 모델의 VO 변환 책임은 infrastructure 의 `toDomain()` / `fromDomain()` 경계에 둔다.
 
 ### 의존 방향
 - 의존 방향은 외부 계층에서 도메인 쪽으로 향한다.
