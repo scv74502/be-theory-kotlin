@@ -1,8 +1,7 @@
 package com.loopers.domain.user.vo
 
-import com.loopers.domain.user.InvalidPasswordException
-import com.loopers.domain.user.PasswordEncoder
-import java.time.LocalDate
+import com.loopers.domain.user.exception.InvalidPasswordException
+import com.loopers.domain.user.port.PasswordEncoder
 import java.time.format.DateTimeFormatter
 
 class Password private constructor(
@@ -13,14 +12,14 @@ class Password private constructor(
             Regex("^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d)(?=.*[!@#$%^&*(),.?\":{}|<>])[A-Za-z0-9!@#$%^&*(),.?\":{}|<>]{8,16}$")
         private val BIRTHDAY_TOKEN_PATTERNS = listOf("yyyyMMdd", "yyMMdd", "MMdd")
 
-        fun of(raw: String, birthday: LocalDate, encoder: PasswordEncoder): Password {
+        fun of(raw: String, birthday: Birthday, encoder: PasswordEncoder): Password {
             validate(raw, birthday)
             return Password(encoder.encode(raw))
         }
 
         fun fromEncoded(encoded: String): Password = Password(encoded)
 
-        private fun validate(raw: String, birthday: LocalDate) {
+        private fun validate(raw: String, birthday: Birthday) {
             validateFormat(raw)
             validateNotContainsBirthday(raw, birthday)
         }
@@ -32,13 +31,13 @@ class Password private constructor(
             )
         }
 
-        private fun validateNotContainsBirthday(raw: String, birthday: LocalDate) {
+        private fun validateNotContainsBirthday(raw: String, birthday: Birthday) {
             validate(!containsBirthdayToken(raw, birthday), "비밀번호에 생년월일을 포함할 수 없습니다.")
         }
 
-        private fun containsBirthdayToken(raw: String, birthday: LocalDate): Boolean =
+        private fun containsBirthdayToken(raw: String, birthday: Birthday): Boolean =
             BIRTHDAY_TOKEN_PATTERNS.any { pattern ->
-                raw.contains(birthday.format(DateTimeFormatter.ofPattern(pattern)))
+                raw.contains(birthday.value.format(DateTimeFormatter.ofPattern(pattern)))
             }
 
         private fun validate(condition: Boolean, message: String) {
