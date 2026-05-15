@@ -1,7 +1,11 @@
-package com.loopers.infrastructure.user
+package com.loopers.domain.user.infrastructure.persistence
 
 import com.loopers.domain.BaseEntity
-import com.loopers.domain.user.UserModel
+import com.loopers.domain.user.model.UserModel
+import com.loopers.domain.user.vo.Birthday
+import com.loopers.domain.user.vo.Email
+import com.loopers.domain.user.vo.LoginId
+import com.loopers.domain.user.vo.Name
 import com.loopers.domain.user.vo.Password
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
@@ -24,20 +28,20 @@ class UserJpaEntity(
 ) : BaseEntity() {
     fun toDomain(): UserModel = UserModel(
         id = id,
-        loginId = loginId,
+        loginId = LoginId.of(loginId),
         password = Password.fromEncoded(encodedPassword),
-        name = name,
-        birthday = birthday,
-        email = email,
+        name = Name.of(name),
+        birthday = Birthday.of(birthday),
+        email = Email.of(email),
     )
 
     companion object {
         fun fromDomain(user: UserModel): UserJpaEntity = UserJpaEntity(
-            loginId = user.loginId,
+            loginId = user.loginId.value,
             encodedPassword = user.password.encoded,
-            name = user.name,
-            birthday = user.birthday,
-            email = user.email,
+            name = user.name.value,
+            birthday = user.birthday.value,
+            email = user.email.value,
         )
     }
 }

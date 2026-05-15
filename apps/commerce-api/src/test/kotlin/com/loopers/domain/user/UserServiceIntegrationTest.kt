@@ -1,13 +1,16 @@
 package com.loopers.domain.user
 
+import com.loopers.domain.user.application.UserService
+import com.loopers.domain.user.infrastructure.persistence.UserJpaRepository
+import com.loopers.domain.user.infrastructure.persistence.UserRepositoryImpl
+import com.loopers.domain.user.model.UserModel
+import com.loopers.domain.user.port.UserRepository
 import com.loopers.domain.user.UserSteps.Companion.기본_로그인_ID
 import com.loopers.domain.user.UserSteps.Companion.기본_생년월일
 import com.loopers.domain.user.UserSteps.Companion.기본_이름
 import com.loopers.domain.user.UserSteps.Companion.기본_비밀번호
 import com.loopers.domain.user.UserSteps.Companion.기본_이메일
 import com.loopers.domain.user.UserSteps.Companion.사용자_회원가입
-import com.loopers.infrastructure.user.UserJpaRepository
-import com.loopers.infrastructure.user.UserRepositoryImpl
 import com.loopers.support.error.CoreException
 import com.loopers.support.error.ErrorType
 import com.loopers.utils.DatabaseCleanUp
@@ -42,7 +45,7 @@ class UserServiceIntegrationTest
             val result = userService.signUp(사용자_회원가입())
 
             val saved = userJpaRepository.findByLoginId(기본_로그인_ID)
-            assertThat(result.loginId).isEqualTo(기본_로그인_ID)
+            assertThat(result.loginId.value).isEqualTo(기본_로그인_ID)
             assertThat(saved).isNotNull
             assertThat(saved?.email).isEqualTo(기본_이메일)
         }
@@ -80,10 +83,10 @@ class UserServiceIntegrationTest
 
             val result = userService.getMe(기본_로그인_ID, 기본_비밀번호)
 
-            assertThat(result.loginId).isEqualTo(기본_로그인_ID)
-            assertThat(result.name).isEqualTo(기본_이름)
-            assertThat(result.birthday).isEqualTo(기본_생년월일)
-            assertThat(result.email).isEqualTo(기본_이메일)
+            assertThat(result.loginId.value).isEqualTo(기본_로그인_ID)
+            assertThat(result.name.value).isEqualTo(기본_이름)
+            assertThat(result.birthday.value).isEqualTo(기본_생년월일)
+            assertThat(result.email.value).isEqualTo(기본_이메일)
         }
 
         @Test

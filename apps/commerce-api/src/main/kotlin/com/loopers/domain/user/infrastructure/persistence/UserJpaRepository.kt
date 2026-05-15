@@ -1,4 +1,4 @@
-package com.loopers.infrastructure.user
+package com.loopers.domain.user.infrastructure.persistence
 
 import org.springframework.data.jpa.repository.JpaRepository
 
