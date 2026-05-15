@@ -1,6 +1,6 @@
-package com.loopers.application.user
+package com.loopers.domain.user.application
 
-import com.loopers.domain.user.UserModel
+import com.loopers.domain.user.model.UserModel
 import java.time.LocalDate
 
 data class UserInfo(
@@ -13,10 +13,10 @@ data class UserInfo(
     companion object {
         fun from(user: UserModel): UserInfo = UserInfo(
             id = user.id,
-            loginId = user.loginId,
-            name = user.name,
-            birthday = user.birthday,
-            email = user.email,
+            loginId = user.loginId.value,
+            name = user.name.value,
+            birthday = user.birthday.value,
+            email = user.email.value,
         )
     }
 }

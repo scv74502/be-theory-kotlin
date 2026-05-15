@@ -1,4 +1,4 @@
-package com.loopers.domain.user
+package com.loopers.domain.user.exception
 
 class DuplicateLoginIdException(
     val loginId: String,

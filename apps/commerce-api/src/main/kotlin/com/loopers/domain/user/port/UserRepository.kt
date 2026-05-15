@@ -1,4 +1,6 @@
-package com.loopers.domain.user
+package com.loopers.domain.user.port
+
+import com.loopers.domain.user.model.UserModel
 
 interface UserRepository {
     fun existsByLoginId(loginId: String): Boolean

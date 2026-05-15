@@ -1,4 +1,4 @@
-package com.loopers.domain.user
+package com.loopers.domain.user.application
 
 import java.time.LocalDate
 

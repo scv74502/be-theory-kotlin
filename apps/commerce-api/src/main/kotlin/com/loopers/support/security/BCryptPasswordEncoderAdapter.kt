@@ -1,6 +1,6 @@
 package com.loopers.support.security
 
-import com.loopers.domain.user.PasswordEncoder
+import com.loopers.domain.user.port.PasswordEncoder
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.stereotype.Component
 

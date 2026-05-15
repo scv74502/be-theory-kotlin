@@ -1,4 +1,4 @@
-package com.loopers.domain.user
+package com.loopers.domain.user.port
 
 interface PasswordEncoder {
     fun encode(raw: String): String

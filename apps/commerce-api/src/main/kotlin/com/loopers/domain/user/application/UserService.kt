@@ -1,5 +1,14 @@
-package com.loopers.domain.user
+package com.loopers.domain.user.application
 
+import com.loopers.domain.user.exception.DuplicateLoginIdException
+import com.loopers.domain.user.exception.UserDomainException
+import com.loopers.domain.user.model.UserModel
+import com.loopers.domain.user.port.PasswordEncoder
+import com.loopers.domain.user.port.UserRepository
+import com.loopers.domain.user.vo.Birthday
+import com.loopers.domain.user.vo.Email
+import com.loopers.domain.user.vo.LoginId
+import com.loopers.domain.user.vo.Name
 import com.loopers.domain.user.vo.Password
 import com.loopers.support.error.CoreException
 import com.loopers.support.error.ErrorType
@@ -17,13 +26,14 @@ class UserService(
             if (userRepository.existsByLoginId(command.loginId)) {
                 throwDuplicateLoginIdConflict()
             }
-            val password = Password.of(command.rawPassword, command.birthday, passwordEncoder)
+            val birthday = Birthday.of(command.birthday)
+            val password = Password.of(command.rawPassword, birthday, passwordEncoder)
             val user = UserModel(
-                loginId = command.loginId,
+                loginId = LoginId.of(command.loginId),
                 password = password,
-                name = command.name,
-                birthday = command.birthday,
-                email = command.email,
+                name = Name.of(command.name),
+                birthday = birthday,
+                email = Email.of(command.email),
             )
             try {
                 userRepository.save(user)
