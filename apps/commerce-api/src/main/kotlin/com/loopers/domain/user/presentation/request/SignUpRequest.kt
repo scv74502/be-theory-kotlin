@@ -1,6 +1,6 @@
 package com.loopers.domain.user.presentation.request
 
-import com.loopers.domain.user.application.UserCommand
+import com.loopers.domain.user.application.command.UserSignUpCommand
 import jakarta.validation.constraints.Email
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.NotNull
@@ -26,7 +26,7 @@ data class SignUpRequest(
     @field:Email(message = "이메일 형식이 올바르지 않습니다.")
     val email: String,
 ) {
-    fun toCommand(): UserCommand.SignUp = UserCommand.SignUp(
+    fun toCommand(): UserSignUpCommand = UserSignUpCommand(
         loginId = loginId,
         rawPassword = password,
         name = name,

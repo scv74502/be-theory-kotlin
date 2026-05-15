@@ -1,5 +1,6 @@
 package com.loopers.domain.user.application
 
+import com.loopers.domain.user.application.command.UserSignUpCommand
 import com.loopers.domain.user.exception.DuplicateLoginIdException
 import com.loopers.domain.user.exception.UserDomainException
 import com.loopers.domain.user.model.UserModel
@@ -21,7 +22,7 @@ class UserService(
     private val passwordEncoder: PasswordEncoder,
 ) {
     @Transactional
-    fun signUp(command: UserCommand.SignUp): UserModel {
+    fun signUp(command: UserSignUpCommand): UserModel {
         return try {
             if (userRepository.existsByLoginId(command.loginId)) {
                 throwDuplicateLoginIdConflict()

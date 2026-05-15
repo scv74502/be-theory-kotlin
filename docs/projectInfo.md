@@ -213,7 +213,8 @@ API 예외 응답 상태는 Spring 표준 `HttpStatus` 로 표현한다.
 - 비밀번호: `Password` VO 가 평문 규칙 검증과 인코딩 생성 책임을 보유하며, 생성 후에는 인코딩된 값만 보관.
 - 암호화 포트: `domain/user/port/PasswordEncoder` ↔ BCrypt 어댑터(인프라)
 - 회원가입 진입점: `domain/user/application/UserService.signUp(command)`
-- `UserCommand`, `UserInfo`, `UserFacade`, `UserService` 는 사용자 application 계층에 둔다.
+- 사용자 유스케이스 command 는 `domain/user/application/command` 아래에 1클래스 1파일로 둔다.
+- `UserInfo`, `UserFacade`, `UserService` 는 사용자 application 계층에 둔다.
 - `UserRepository` 는 `domain/user/port` 에 두고, JPA 구현체는 `domain/user/infrastructure/persistence` 에 둔다.
 - 중복 로그인ID: `UserService` 가 사전 조회로 검증하고, 저장 시점 DB Unique constraint 충돌은
   `UserRepositoryImpl` 이 `DuplicateLoginIdException` 경계 예외로 변환한 뒤 `UserService` 가 409 비즈니스 에러로 변환한다.

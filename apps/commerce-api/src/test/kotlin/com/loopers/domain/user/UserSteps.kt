@@ -1,6 +1,6 @@
 package com.loopers.domain.user
 
-import com.loopers.domain.user.application.UserCommand
+import com.loopers.domain.user.application.command.UserSignUpCommand
 import com.loopers.domain.user.model.UserModel
 import com.loopers.domain.user.port.PasswordEncoder
 import com.loopers.domain.user.presentation.request.SignUpRequest
@@ -55,7 +55,7 @@ class UserSteps {
             name: String = 기본_이름,
             birthday: LocalDate = 기본_생년월일,
             email: String = 기본_이메일,
-        ): UserCommand.SignUp = UserCommand.SignUp(
+        ): UserSignUpCommand = UserSignUpCommand(
             loginId = loginId,
             rawPassword = rawPassword,
             name = name,
