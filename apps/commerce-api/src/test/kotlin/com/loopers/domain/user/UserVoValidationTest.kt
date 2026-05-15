@@ -1,15 +1,12 @@
 package com.loopers.domain.user
 
+import com.loopers.domain.user.UserSteps.Companion.비밀번호_생성
 import com.loopers.domain.user.exception.InvalidPasswordException
 import com.loopers.domain.user.exception.InvalidUserException
-import com.loopers.domain.user.port.PasswordEncoder
 import com.loopers.domain.user.vo.Birthday
 import com.loopers.domain.user.vo.Email
 import com.loopers.domain.user.vo.LoginId
 import com.loopers.domain.user.vo.Name
-import com.loopers.domain.user.vo.Password
-import io.mockk.every
-import io.mockk.mockk
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -77,43 +74,37 @@ class UserVoValidationTest {
 
     @Test
     fun `비밀번호는_8자와_16자_경계값이면_생성된다`() {
-        assertThat(Password.of("Abcde1!@", birthday(), encoder()).encoded).isEqualTo("ENC(Abcde1!@)")
-        assertThat(Password.of("AbcdefghijklmN1!", birthday(), encoder()).encoded).isEqualTo("ENC(AbcdefghijklmN1!)")
+        assertThat(비밀번호_생성(rawPassword = "Abcde1!@").encoded).isEqualTo("ENC(Abcde1!@)")
+        assertThat(비밀번호_생성(rawPassword = "AbcdefghijklmN1!").encoded).isEqualTo("ENC(AbcdefghijklmN1!)")
     }
 
     @Test
     fun `비밀번호는_8자_미만이거나_16자_초과면_생성이_불가하다`() {
-        assertThrows<InvalidPasswordException> { Password.of("Abcd1!@", birthday(), encoder()) }
-        assertThrows<InvalidPasswordException> { Password.of("AbcdefghijklmNo1!", birthday(), encoder()) }
+        assertThrows<InvalidPasswordException> { 비밀번호_생성(rawPassword = "Abcd1!@") }
+        assertThrows<InvalidPasswordException> { 비밀번호_생성(rawPassword = "AbcdefghijklmNo1!") }
     }
 
     @Test
     fun `비밀번호는_필수_문자종류가_없으면_생성이_불가하다`() {
-        assertThrows<InvalidPasswordException> { Password.of("abcdef1!", birthday(), encoder()) }
-        assertThrows<InvalidPasswordException> { Password.of("ABCDEF1!", birthday(), encoder()) }
-        assertThrows<InvalidPasswordException> { Password.of("Abcdefg!", birthday(), encoder()) }
-        assertThrows<InvalidPasswordException> { Password.of("Abcdef12", birthday(), encoder()) }
+        assertThrows<InvalidPasswordException> { 비밀번호_생성(rawPassword = "abcdef1!") }
+        assertThrows<InvalidPasswordException> { 비밀번호_생성(rawPassword = "ABCDEF1!") }
+        assertThrows<InvalidPasswordException> { 비밀번호_생성(rawPassword = "Abcdefg!") }
+        assertThrows<InvalidPasswordException> { 비밀번호_생성(rawPassword = "Abcdef12") }
     }
 
     @Test
     fun `비밀번호는_허용되지_않은_문자가_있으면_생성이_불가하다`() {
-        assertThrows<InvalidPasswordException> { Password.of("Abc한글1!", birthday(), encoder()) }
-        assertThrows<InvalidPasswordException> { Password.of("Abcde1! ", birthday(), encoder()) }
-        assertThrows<InvalidPasswordException> { Password.of("Abcde1!~", birthday(), encoder()) }
+        assertThrows<InvalidPasswordException> { 비밀번호_생성(rawPassword = "Abc한글1!") }
+        assertThrows<InvalidPasswordException> { 비밀번호_생성(rawPassword = "Abcde1! ") }
+        assertThrows<InvalidPasswordException> { 비밀번호_생성(rawPassword = "Abcde1!~") }
     }
 
     @Test
     fun `비밀번호는_생년월일_토큰을_포함하면_생성이_불가하다`() {
-        val birthday = Birthday.of(LocalDate.of(1990, 5, 14))
+        val birthday = LocalDate.of(1990, 5, 14)
 
-        assertThrows<InvalidPasswordException> { Password.of("Pw19900514!", birthday, encoder()) }
-        assertThrows<InvalidPasswordException> { Password.of("Pw900514A!", birthday, encoder()) }
-        assertThrows<InvalidPasswordException> { Password.of("Pw0514AB!", birthday, encoder()) }
-    }
-
-    private fun birthday(): Birthday = Birthday.of(LocalDate.of(1990, 5, 14))
-
-    private fun encoder(): PasswordEncoder = mockk {
-        every { encode(any()) } answers { "ENC(" + firstArg<String>() + ")" }
+        assertThrows<InvalidPasswordException> { 비밀번호_생성(rawPassword = "Pw19900514!", birthday = birthday) }
+        assertThrows<InvalidPasswordException> { 비밀번호_생성(rawPassword = "Pw900514A!", birthday = birthday) }
+        assertThrows<InvalidPasswordException> { 비밀번호_생성(rawPassword = "Pw0514AB!", birthday = birthday) }
     }
 }
