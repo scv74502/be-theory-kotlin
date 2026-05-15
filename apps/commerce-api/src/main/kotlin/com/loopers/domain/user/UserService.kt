@@ -37,7 +37,11 @@ class UserService(
 
     @Transactional(readOnly = true)
     fun getMe(loginId: String, rawPassword: String): UserModel {
-        throwUnauthorized()
+        val user = userRepository.findByLoginId(loginId) ?: throwUnauthorized()
+        if (!passwordEncoder.matches(rawPassword, user.password.encoded)) {
+            throwUnauthorized()
+        }
+        return user
     }
 
     private fun throwDuplicateLoginIdConflict(): Nothing {

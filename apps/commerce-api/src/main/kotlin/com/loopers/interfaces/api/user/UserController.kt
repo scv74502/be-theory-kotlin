@@ -40,10 +40,23 @@ class UserController(
         if (loginId == null || rawPassword == null) {
             throw CoreException(ErrorType.UNAUTHORIZED)
         }
-        return userFacade.getMe(loginId, rawPassword)
-            .let { MyUserResponse.from(it) }
-            .let { ApiResponse.success(it) }
+        val user = userFacade.getMe(loginId, rawPassword)
+        return ApiResponse.success(
+            MyUserResponse(
+                loginId = user.loginId,
+                name = maskName(user.name),
+                birthday = user.birthday,
+                email = user.email,
+            ),
+        )
     }
+
+    private fun maskName(name: String): String =
+        if (name.length == 1) {
+            "*"
+        } else {
+            name.dropLast(1) + "*"
+        }
 
     companion object {
         private const val LOGIN_ID_HEADER = "X-Loopers-LoginId"

@@ -9,4 +9,6 @@ class BCryptPasswordEncoderAdapter(
     private val delegate: BCryptPasswordEncoder,
 ) : PasswordEncoder {
     override fun encode(raw: String): String = delegate.encode(raw)
+
+    override fun matches(raw: String, encoded: String): Boolean = delegate.matches(raw, encoded)
 }
