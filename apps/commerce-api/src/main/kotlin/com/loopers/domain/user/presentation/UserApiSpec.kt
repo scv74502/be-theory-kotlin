@@ -1,6 +1,7 @@
 package com.loopers.domain.user.presentation
 
 import com.loopers.domain.user.application.UserInfo
+import com.loopers.domain.user.presentation.request.ChangePasswordRequest
 import com.loopers.domain.user.presentation.request.SignUpRequest
 import com.loopers.domain.user.presentation.response.MyUserResponse
 import com.loopers.domain.user.presentation.response.SignUpResponse
@@ -21,4 +22,14 @@ interface UserApiSpec {
         description = "인증 헤더 기반으로 로그인한 사용자의 정보를 조회합니다.",
     )
     fun getMe(user: UserInfo): ApiResponse<MyUserResponse>
+
+    @Operation(
+        summary = "비밀번호 변경",
+        description = "인증 헤더 기반으로 로그인한 사용자의 비밀번호를 변경합니다.",
+    )
+    fun changePassword(
+        user: UserInfo,
+        currentRawPassword: String?,
+        request: ChangePasswordRequest,
+    ): ApiResponse<Any>
 }

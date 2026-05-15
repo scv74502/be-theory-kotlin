@@ -1,16 +1,18 @@
 package com.loopers.domain.user
 
+import com.loopers.domain.user.UserSteps.Companion.기본_로그인_ID
+import com.loopers.domain.user.UserSteps.Companion.기본_비밀번호
+import com.loopers.domain.user.UserSteps.Companion.기본_생년월일
+import com.loopers.domain.user.UserSteps.Companion.기본_이름
+import com.loopers.domain.user.UserSteps.Companion.기본_이메일
+import com.loopers.domain.user.UserSteps.Companion.사용자_회원가입
 import com.loopers.domain.user.application.UserService
+import com.loopers.domain.user.application.command.UserChangePasswordCommand
 import com.loopers.domain.user.infrastructure.persistence.UserJpaRepository
 import com.loopers.domain.user.infrastructure.persistence.UserRepositoryImpl
 import com.loopers.domain.user.model.UserModel
 import com.loopers.domain.user.port.UserRepository
-import com.loopers.domain.user.UserSteps.Companion.기본_로그인_ID
-import com.loopers.domain.user.UserSteps.Companion.기본_생년월일
-import com.loopers.domain.user.UserSteps.Companion.기본_이름
-import com.loopers.domain.user.UserSteps.Companion.기본_비밀번호
-import com.loopers.domain.user.UserSteps.Companion.기본_이메일
-import com.loopers.domain.user.UserSteps.Companion.사용자_회원가입
+import com.loopers.domain.user.vo.Password
 import com.loopers.support.error.CoreException
 import com.loopers.support.error.ErrorType
 import com.loopers.utils.DatabaseCleanUp
@@ -110,6 +112,60 @@ class UserServiceIntegrationTest
         }
 
         @Test
+        fun `비밀번호를_변경하면_새_비밀번호로_인증된다`() {
+            val user = userService.signUp(사용자_회원가입())
+
+            userService.changePassword(
+                UserChangePasswordCommand(
+                    userId = user.id,
+                    currentRawPassword = 기본_비밀번호,
+                    newRawPassword = "NewPass1!",
+                ),
+            )
+
+            val oldPasswordEx = assertThrows<CoreException> {
+                userService.getMe(기본_로그인_ID, 기본_비밀번호)
+            }
+            val result = userService.getMe(기본_로그인_ID, "NewPass1!")
+            assertThat(oldPasswordEx.errorType).isEqualTo(ErrorType.UNAUTHORIZED)
+            assertThat(result.loginId.value).isEqualTo(기본_로그인_ID)
+        }
+
+        @Test
+        fun `현재_비밀번호가_일치하지_않으면_비밀번호_변경이_불가하다`() {
+            val user = userService.signUp(사용자_회원가입())
+
+            val ex = assertThrows<CoreException> {
+                userService.changePassword(
+                    UserChangePasswordCommand(
+                        userId = user.id,
+                        currentRawPassword = "Wrongpass1!",
+                        newRawPassword = "NewPass1!",
+                    ),
+                )
+            }
+
+            assertThat(ex.errorType).isEqualTo(ErrorType.UNAUTHORIZED)
+        }
+
+        @Test
+        fun `새_비밀번호에_생년월일이_포함되면_BAD_REQUEST가_발생한다`() {
+            val user = userService.signUp(사용자_회원가입())
+
+            val ex = assertThrows<CoreException> {
+                userService.changePassword(
+                    UserChangePasswordCommand(
+                        userId = user.id,
+                        currentRawPassword = 기본_비밀번호,
+                        newRawPassword = "Pw19900514!",
+                    ),
+                )
+            }
+
+            assertThat(ex.errorType).isEqualTo(ErrorType.BAD_REQUEST)
+        }
+
+        @Test
         fun `아이디_선점당할시_가입실패후_409에러`() {
             val executor = Executors.newFixedThreadPool(2)
 
@@ -158,6 +214,12 @@ class UserServiceIntegrationTest
             override fun save(user: UserModel): UserModel = delegate.save(user)
 
             override fun findByLoginId(loginId: String): UserModel? = delegate.findByLoginId(loginId)
+
+            override fun findByIdForUpdate(id: Long): UserModel? = delegate.findByIdForUpdate(id)
+
+            override fun updatePassword(id: Long, password: Password) {
+                delegate.updatePassword(id, password)
+            }
         }
 
         companion object {

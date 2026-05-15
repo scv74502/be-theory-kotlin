@@ -3,6 +3,7 @@ package com.loopers.domain.user.infrastructure.persistence
 import com.loopers.domain.user.exception.DuplicateLoginIdException
 import com.loopers.domain.user.model.UserModel
 import com.loopers.domain.user.port.UserRepository
+import com.loopers.domain.user.vo.Password
 import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.stereotype.Component
 
@@ -20,4 +21,10 @@ class UserRepositoryImpl(
         }
 
     override fun findByLoginId(loginId: String): UserModel? = userJpaRepository.findByLoginId(loginId)?.toDomain()
+
+    override fun findByIdForUpdate(id: Long): UserModel? = userJpaRepository.findByIdForUpdate(id)?.toDomain()
+
+    override fun updatePassword(id: Long, password: Password) {
+        userJpaRepository.findById(id).orElseThrow().encodedPassword = password.encoded
+    }
 }

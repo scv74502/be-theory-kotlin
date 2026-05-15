@@ -147,6 +147,47 @@ domain/user/
 
 API 예외 응답 상태는 Spring 표준 `HttpStatus` 로 표현한다.
 
+## 비밀번호 변경 API
+
+### `PATCH /api/users/me/password`
+
+로그인한 사용자의 비밀번호를 변경한다.
+
+#### Request
+
+| 위치 | 이름 | 필수 | 의미 |
+| --- | --- | --- | --- |
+| Header | `X-Loopers-LoginId` | Y | 로그인 아이디 |
+| Header | `X-Loopers-LoginPw` | Y | 현재 평문 비밀번호 |
+| Body | `newPassword` | Y | 새 평문 비밀번호 |
+
+```json
+{
+  "newPassword": "NewPass1!"
+}
+```
+
+- 현재 비밀번호 검증은 기존 인증 헤더를 사용한다.
+- 서비스 트랜잭션 안에서 회원 PK 기준으로 잠금 조회한 뒤 최신 비밀번호와 현재 비밀번호를 다시 검증한다.
+- `newPassword`: 회원가입과 같은 비밀번호 규칙을 따른다.
+- 현재 비밀번호와 같은 새 비밀번호는 사용할 수 없다.
+
+#### Response `200 OK`
+
+성공 응답만 반환한다.
+
+#### Error
+
+| 조건 | 상태 |
+| --- | --- |
+| 로그인ID 헤더 누락 | `401 Unauthorized` |
+| 비밀번호 헤더 누락 | `401 Unauthorized` |
+| 사용자 없음 | `401 Unauthorized` |
+| 현재 비밀번호 불일치 | `401 Unauthorized` |
+| 새 비밀번호 포맷 오류 | `400 Bad Request` |
+| 새 비밀번호에 생년월일 포함 | `400 Bad Request` |
+| 새 비밀번호가 현재 비밀번호와 같음 | `400 Bad Request` |
+
 ## 회원가입 API
 
 ### `POST /api/users`

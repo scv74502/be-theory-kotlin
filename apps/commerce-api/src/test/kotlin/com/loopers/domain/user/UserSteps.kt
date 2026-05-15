@@ -32,6 +32,7 @@ class UserSteps {
         ): Password = Password.of(rawPassword, Birthday.of(birthday), encoder)
 
         fun 회원_도메인_생성(
+            id: Long = 0,
             loginId: String = 기본_로그인_ID,
             rawPassword: String = 기본_비밀번호,
             name: String = 기본_이름,
@@ -41,6 +42,7 @@ class UserSteps {
         ): UserModel {
             val birthdayVo = Birthday.of(birthday)
             return UserModel(
+                id = id,
                 loginId = LoginId.of(loginId),
                 password = Password.of(rawPassword, birthdayVo, encoder),
                 name = Name.of(name),
@@ -48,6 +50,22 @@ class UserSteps {
                 email = Email.of(email),
             )
         }
+
+        fun 저장된_회원_도메인_생성(
+            id: Long,
+            loginId: String = 기본_로그인_ID,
+            encodedPassword: String,
+            name: String = 기본_이름,
+            birthday: LocalDate = 기본_생년월일,
+            email: String = 기본_이메일,
+        ): UserModel = UserModel(
+            id = id,
+            loginId = LoginId.of(loginId),
+            password = Password.fromEncoded(encodedPassword),
+            name = Name.of(name),
+            birthday = Birthday.of(birthday),
+            email = Email.of(email),
+        )
 
         fun 사용자_회원가입(
             loginId: String = 기본_로그인_ID,

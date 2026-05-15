@@ -1,5 +1,6 @@
 package com.loopers.domain.user.application
 
+import com.loopers.domain.user.application.command.UserChangePasswordCommand
 import com.loopers.domain.user.application.command.UserSignUpCommand
 import org.springframework.stereotype.Component
 
@@ -15,5 +16,9 @@ class UserFacade(
     fun getMe(loginId: String, rawPassword: String): UserInfo {
         return userService.getMe(loginId, rawPassword)
             .let { UserInfo.from(it) }
+    }
+
+    fun changePassword(command: UserChangePasswordCommand) {
+        userService.changePassword(command)
     }
 }

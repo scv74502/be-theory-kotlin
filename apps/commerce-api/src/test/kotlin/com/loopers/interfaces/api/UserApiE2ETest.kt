@@ -34,6 +34,8 @@ class UserApiE2ETest
             object : ParameterizedTypeReference<ApiResponse<SignUpResponse>>() {}
         private val myUserResponseType =
             object : ParameterizedTypeReference<ApiResponse<MyUserResponse>>() {}
+        private val successResponseType =
+            object : ParameterizedTypeReference<ApiResponse<Any>>() {}
 
         @Test
         fun `유효한_요청이면_201_CREATED와_가입된_회원_정보를_반환한다`() {
@@ -122,6 +124,26 @@ class UserApiE2ETest
         }
 
         @Test
+        fun `올바른_인증_헤더와_새_비밀번호면_비밀번호가_변경된다`() {
+            userService.signUp(사용자_회원가입())
+
+            val response = changePassword(authHeaders(), "NewPass1!")
+
+            assertThat(response.statusCode).isEqualTo(HttpStatus.OK)
+            assertThat(getMe(authHeaders()).statusCode).isEqualTo(HttpStatus.UNAUTHORIZED)
+            assertThat(getMe(authHeaders(password = "NewPass1!")).statusCode).isEqualTo(HttpStatus.OK)
+        }
+
+        @Test
+        fun `새_비밀번호에_생년월일이_포함되면_400_BAD_REQUEST를_반환한다`() {
+            userService.signUp(사용자_회원가입())
+
+            val response = changePassword(authHeaders(), "Pw19900514!")
+
+            assertThat(response.statusCode).isEqualTo(HttpStatus.BAD_REQUEST)
+        }
+
+        @Test
         fun `이름이_한_글자면_별표만_반환한다`() {
             userService.signUp(
                 사용자_회원가입(
@@ -139,6 +161,16 @@ class UserApiE2ETest
 
         private fun getMe(headers: HttpHeaders) =
             testRestTemplate.exchange("$ENDPOINT/me", HttpMethod.GET, HttpEntity<Unit>(headers), myUserResponseType)
+
+        private fun changePassword(
+            headers: HttpHeaders,
+            newPassword: String,
+        ) = testRestTemplate.exchange(
+            "$ENDPOINT/me/password",
+            HttpMethod.PATCH,
+            HttpEntity(mapOf("newPassword" to newPassword), headers),
+            successResponseType,
+        )
 
         private fun authHeaders(
             loginId: String? = 기본_로그인_ID,

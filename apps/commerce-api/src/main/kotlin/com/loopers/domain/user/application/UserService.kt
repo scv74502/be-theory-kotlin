@@ -1,5 +1,6 @@
 package com.loopers.domain.user.application
 
+import com.loopers.domain.user.application.command.UserChangePasswordCommand
 import com.loopers.domain.user.application.command.UserSignUpCommand
 import com.loopers.domain.user.exception.DuplicateLoginIdException
 import com.loopers.domain.user.exception.UserDomainException
@@ -55,6 +56,24 @@ class UserService(
         return user
     }
 
+    @Transactional
+    fun changePassword(command: UserChangePasswordCommand) {
+        val user = userRepository.findByIdForUpdate(command.userId) ?: throwUnauthorized()
+        if (!passwordEncoder.matches(command.currentRawPassword, user.password.encoded)) {
+            throwUnauthorized()
+        }
+        if (passwordEncoder.matches(command.newRawPassword, user.password.encoded)) {
+            throw CoreException(ErrorType.BAD_REQUEST, SAME_PASSWORD_MESSAGE)
+        }
+
+        try {
+            val password = Password.of(command.newRawPassword, user.birthday, passwordEncoder)
+            userRepository.updatePassword(user.id, password)
+        } catch (e: UserDomainException) {
+            throw CoreException(ErrorType.BAD_REQUEST, e.message)
+        }
+    }
+
     private fun throwDuplicateLoginIdConflict(): Nothing {
         throw CoreException(ErrorType.CONFLICT, DUPLICATE_LOGIN_ID_MESSAGE)
     }
@@ -65,5 +84,6 @@ class UserService(
 
     companion object {
         private const val DUPLICATE_LOGIN_ID_MESSAGE = "이미 가입된 로그인 ID 입니다."
+        private const val SAME_PASSWORD_MESSAGE = "현재 비밀번호는 새 비밀번호로 사용할 수 없습니다."
     }
 }
