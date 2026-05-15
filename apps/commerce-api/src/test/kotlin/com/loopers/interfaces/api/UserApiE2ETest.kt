@@ -1,15 +1,15 @@
 package com.loopers.interfaces.api
 
 import com.loopers.ApiTest
-import com.loopers.domain.user.UserService
+import com.loopers.domain.user.application.UserService
+import com.loopers.domain.user.presentation.response.MyUserResponse
+import com.loopers.domain.user.presentation.response.SignUpResponse
 import com.loopers.domain.user.UserSteps.Companion.기본_로그인_ID
 import com.loopers.domain.user.UserSteps.Companion.기본_이름
 import com.loopers.domain.user.UserSteps.Companion.기본_이메일
 import com.loopers.domain.user.UserSteps.Companion.기본_비밀번호
 import com.loopers.domain.user.UserSteps.Companion.사용자_회원가입
 import com.loopers.domain.user.UserSteps.Companion.회원가입_요청_생성
-import com.loopers.interfaces.api.user.response.MyUserResponse
-import com.loopers.interfaces.api.user.response.SignUpResponse
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired

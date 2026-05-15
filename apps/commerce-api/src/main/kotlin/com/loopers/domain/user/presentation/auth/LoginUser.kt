@@ -1,4 +1,4 @@
-package com.loopers.interfaces.api.auth
+package com.loopers.domain.user.presentation.auth
 
 @Target(AnnotationTarget.VALUE_PARAMETER)
 @Retention(AnnotationRetention.RUNTIME)

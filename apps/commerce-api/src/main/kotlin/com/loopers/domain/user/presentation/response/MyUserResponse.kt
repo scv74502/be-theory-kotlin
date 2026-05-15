@@ -1,6 +1,6 @@
-package com.loopers.interfaces.api.user.response
+package com.loopers.domain.user.presentation.response
 
-import com.loopers.application.user.UserInfo
+import com.loopers.domain.user.application.UserInfo
 import java.time.LocalDate
 
 data class MyUserResponse(

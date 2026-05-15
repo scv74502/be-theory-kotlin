@@ -1,12 +1,12 @@
-package com.loopers.interfaces.api.user
+package com.loopers.domain.user.presentation
 
-import com.loopers.application.user.UserFacade
-import com.loopers.application.user.UserInfo
+import com.loopers.domain.user.application.UserFacade
+import com.loopers.domain.user.application.UserInfo
+import com.loopers.domain.user.presentation.auth.LoginUser
+import com.loopers.domain.user.presentation.request.SignUpRequest
+import com.loopers.domain.user.presentation.response.MyUserResponse
+import com.loopers.domain.user.presentation.response.SignUpResponse
 import com.loopers.interfaces.api.ApiResponse
-import com.loopers.interfaces.api.auth.LoginUser
-import com.loopers.interfaces.api.user.request.SignUpRequest
-import com.loopers.interfaces.api.user.response.MyUserResponse
-import com.loopers.interfaces.api.user.response.SignUpResponse
 import io.swagger.v3.oas.annotations.Parameter
 import jakarta.validation.Valid
 import org.springframework.http.HttpStatus

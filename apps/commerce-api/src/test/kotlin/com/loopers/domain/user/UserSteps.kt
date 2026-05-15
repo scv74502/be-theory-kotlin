@@ -1,7 +1,14 @@
 package com.loopers.domain.user
 
+import com.loopers.domain.user.application.UserCommand
+import com.loopers.domain.user.model.UserModel
+import com.loopers.domain.user.port.PasswordEncoder
+import com.loopers.domain.user.presentation.request.SignUpRequest
+import com.loopers.domain.user.vo.Birthday
+import com.loopers.domain.user.vo.Email
+import com.loopers.domain.user.vo.LoginId
+import com.loopers.domain.user.vo.Name
 import com.loopers.domain.user.vo.Password
-import com.loopers.interfaces.api.user.request.SignUpRequest
 import io.mockk.every
 import io.mockk.mockk
 import java.time.LocalDate
@@ -22,7 +29,7 @@ class UserSteps {
             rawPassword: String = 기본_비밀번호,
             birthday: LocalDate = 기본_생년월일,
             encoder: PasswordEncoder = 기본_인코더(),
-        ): Password = Password.of(rawPassword, birthday, encoder)
+        ): Password = Password.of(rawPassword, Birthday.of(birthday), encoder)
 
         fun 회원_도메인_생성(
             loginId: String = 기본_로그인_ID,
@@ -31,13 +38,16 @@ class UserSteps {
             birthday: LocalDate = 기본_생년월일,
             email: String = 기본_이메일,
             encoder: PasswordEncoder = 기본_인코더(),
-        ): UserModel = UserModel(
-            loginId = loginId,
-            password = 비밀번호_생성(rawPassword, birthday, encoder),
-            name = name,
-            birthday = birthday,
-            email = email,
-        )
+        ): UserModel {
+            val birthdayVo = Birthday.of(birthday)
+            return UserModel(
+                loginId = LoginId.of(loginId),
+                password = Password.of(rawPassword, birthdayVo, encoder),
+                name = Name.of(name),
+                birthday = birthdayVo,
+                email = Email.of(email),
+            )
+        }
 
         fun 사용자_회원가입(
             loginId: String = 기본_로그인_ID,

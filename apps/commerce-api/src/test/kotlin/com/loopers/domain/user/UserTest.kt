@@ -7,6 +7,8 @@ import com.loopers.domain.user.UserSteps.Companion.기본_비밀번호
 import com.loopers.domain.user.UserSteps.Companion.기본_이메일
 import com.loopers.domain.user.UserSteps.Companion.비밀번호_생성
 import com.loopers.domain.user.UserSteps.Companion.회원_도메인_생성
+import com.loopers.domain.user.exception.InvalidPasswordException
+import com.loopers.domain.user.exception.InvalidUserException
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -17,10 +19,10 @@ class UserTest {
     fun `모든_필드가_유효하면_회원이_정상_생성된다`() {
         val user = 회원_도메인_생성()
 
-        assertThat(user.loginId).isEqualTo(기본_로그인_ID)
-        assertThat(user.name).isEqualTo(기본_이름)
-        assertThat(user.birthday).isEqualTo(기본_생년월일)
-        assertThat(user.email).isEqualTo(기본_이메일)
+        assertThat(user.loginId.value).isEqualTo(기본_로그인_ID)
+        assertThat(user.name.value).isEqualTo(기본_이름)
+        assertThat(user.birthday.value).isEqualTo(기본_생년월일)
+        assertThat(user.email.value).isEqualTo(기본_이메일)
         assertThat(user.password.encoded).isEqualTo("ENC($기본_비밀번호)")
     }
 

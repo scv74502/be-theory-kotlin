@@ -1,6 +1,6 @@
-package com.loopers.interfaces.api.user.request
+package com.loopers.domain.user.presentation.request
 
-import com.loopers.domain.user.UserCommand
+import com.loopers.domain.user.application.UserCommand
 import jakarta.validation.constraints.Email
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.NotNull

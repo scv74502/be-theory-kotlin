@@ -1,4 +1,4 @@
-package com.loopers.interfaces.api
+package com.loopers.domain.user.presentation.auth
 
 object CurrentUserInfoRequestHeaders {
     const val LOGIN_ID = "X-Loopers-LoginId"

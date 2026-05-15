@@ -1,8 +1,7 @@
-package com.loopers.interfaces.api.auth
+package com.loopers.domain.user.presentation.auth
 
-import com.loopers.application.user.UserFacade
-import com.loopers.application.user.UserInfo
-import com.loopers.interfaces.api.CurrentUserInfoRequestHeaders
+import com.loopers.domain.user.application.UserFacade
+import com.loopers.domain.user.application.UserInfo
 import com.loopers.support.error.CoreException
 import com.loopers.support.error.ErrorType
 import jakarta.servlet.http.HttpServletRequest
