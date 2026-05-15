@@ -12,4 +12,9 @@ class UserFacade(
         return userService.signUp(command)
             .let { UserInfo.from(it) }
     }
+
+    fun getMe(loginId: String, rawPassword: String): UserInfo {
+        return userService.getMe(loginId, rawPassword)
+            .let { UserInfo.from(it) }
+    }
 }

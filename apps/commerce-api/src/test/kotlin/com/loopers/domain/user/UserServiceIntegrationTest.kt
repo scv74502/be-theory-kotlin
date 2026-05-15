@@ -1,6 +1,8 @@
 package com.loopers.domain.user
 
 import com.loopers.domain.user.UserSteps.Companion.기본_로그인_ID
+import com.loopers.domain.user.UserSteps.Companion.기본_생년월일
+import com.loopers.domain.user.UserSteps.Companion.기본_이름
 import com.loopers.domain.user.UserSteps.Companion.기본_비밀번호
 import com.loopers.domain.user.UserSteps.Companion.기본_이메일
 import com.loopers.domain.user.UserSteps.Companion.사용자_회원가입
@@ -70,6 +72,38 @@ class UserServiceIntegrationTest
 
             val saved = userJpaRepository.findByLoginId(기본_로그인_ID)
             assertThat(saved?.encodedPassword).isNotEqualTo(기본_비밀번호)
+        }
+
+        @Test
+        fun `유효한_로그인ID와_비밀번호면_내_정보를_반환한다`() {
+            userService.signUp(사용자_회원가입())
+
+            val result = userService.getMe(기본_로그인_ID, 기본_비밀번호)
+
+            assertThat(result.loginId).isEqualTo(기본_로그인_ID)
+            assertThat(result.name).isEqualTo(기본_이름)
+            assertThat(result.birthday).isEqualTo(기본_생년월일)
+            assertThat(result.email).isEqualTo(기본_이메일)
+        }
+
+        @Test
+        fun `사용자가_없으면_UNAUTHORIZED가_발생한다`() {
+            val ex = assertThrows<CoreException> {
+                userService.getMe("missingUser", 기본_비밀번호)
+            }
+
+            assertThat(ex.errorType).isEqualTo(ErrorType.UNAUTHORIZED)
+        }
+
+        @Test
+        fun `비밀번호가_일치하지_않으면_UNAUTHORIZED가_발생한다`() {
+            userService.signUp(사용자_회원가입())
+
+            val ex = assertThrows<CoreException> {
+                userService.getMe(기본_로그인_ID, "Wrongpass1!")
+            }
+
+            assertThat(ex.errorType).isEqualTo(ErrorType.UNAUTHORIZED)
         }
 
         @Test

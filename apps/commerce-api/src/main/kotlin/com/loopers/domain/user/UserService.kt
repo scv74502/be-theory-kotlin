@@ -35,8 +35,17 @@ class UserService(
         }
     }
 
+    @Transactional(readOnly = true)
+    fun getMe(loginId: String, rawPassword: String): UserModel {
+        throwUnauthorized()
+    }
+
     private fun throwDuplicateLoginIdConflict(): Nothing {
         throw CoreException(ErrorType.CONFLICT, DUPLICATE_LOGIN_ID_MESSAGE)
+    }
+
+    private fun throwUnauthorized(): Nothing {
+        throw CoreException(ErrorType.UNAUTHORIZED)
     }
 
     companion object {
