@@ -12,9 +12,16 @@ data class MyUserResponse(
     companion object {
         fun from(info: UserInfo): MyUserResponse = MyUserResponse(
             loginId = info.loginId,
-            name = info.name,
+            name = maskName(info.name),
             birthday = info.birthday,
             email = info.email,
         )
+
+        private fun maskName(name: String): String =
+            if (name.length == 1) {
+                "*"
+            } else {
+                name.dropLast(1) + "*"
+            }
     }
 }

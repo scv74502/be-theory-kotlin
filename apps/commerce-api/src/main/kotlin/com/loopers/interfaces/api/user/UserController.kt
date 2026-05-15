@@ -36,20 +36,7 @@ class UserController(
     override fun getMe(
         @Parameter(hidden = true) @LoginUser user: UserInfo,
     ): ApiResponse<MyUserResponse> {
-        return ApiResponse.success(
-            MyUserResponse(
-                loginId = user.loginId,
-                name = maskName(user.name),
-                birthday = user.birthday,
-                email = user.email,
-            ),
-        )
+        return MyUserResponse.from(user)
+            .let { ApiResponse.success(it) }
     }
-
-    private fun maskName(name: String): String =
-        if (name.length == 1) {
-            "*"
-        } else {
-            name.dropLast(1) + "*"
-        }
 }
