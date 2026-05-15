@@ -1,8 +1,7 @@
 package com.loopers.domain.user.vo
 
+import com.loopers.domain.user.InvalidPasswordException
 import com.loopers.domain.user.PasswordEncoder
-import com.loopers.support.error.CoreException
-import com.loopers.support.error.ErrorType
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -10,9 +9,8 @@ class Password private constructor(
     val encoded: String,
 ) {
     companion object {
-        // 8-16자 사이 영문과 특수문자, 숫자만 포함하는 정규식
         private val PASSWORD_REGEX =
-            Regex("^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d)(?=.*[!@#$%^&*(),.?\":{}|<>])(?=\\S+$).{8,16}$")
+            Regex("^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d)(?=.*[!@#$%^&*(),.?\":{}|<>])[A-Za-z0-9!@#$%^&*(),.?\":{}|<>]{8,16}$")
         private val BIRTHDAY_TOKEN_PATTERNS = listOf("yyyyMMdd", "yyMMdd", "MMdd")
 
         fun of(raw: String, birthday: LocalDate, encoder: PasswordEncoder): Password {
@@ -45,7 +43,7 @@ class Password private constructor(
 
         private fun validate(condition: Boolean, message: String) {
             if (!condition) {
-                throw CoreException(ErrorType.BAD_REQUEST, message)
+                throw InvalidPasswordException(message)
             }
         }
     }

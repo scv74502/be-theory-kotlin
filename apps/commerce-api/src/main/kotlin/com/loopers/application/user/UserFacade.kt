@@ -1,5 +1,6 @@
 package com.loopers.application.user
 
+import com.loopers.domain.user.UserCommand
 import com.loopers.domain.user.UserService
 import org.springframework.stereotype.Component
 
@@ -7,8 +8,8 @@ import org.springframework.stereotype.Component
 class UserFacade(
     private val userService: UserService,
 ) {
-    fun signUp(criteria: UserCriteria.SignUp): UserInfo {
-        return userService.signUp(criteria.toCommand())
+    fun signUp(command: UserCommand.SignUp): UserInfo {
+        return userService.signUp(command)
             .let { UserInfo.from(it) }
     }
 }

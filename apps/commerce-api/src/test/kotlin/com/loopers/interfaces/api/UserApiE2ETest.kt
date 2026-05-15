@@ -5,8 +5,8 @@ import com.loopers.domain.user.UserService
 import com.loopers.domain.user.UserSteps.Companion.기본_로그인_ID
 import com.loopers.domain.user.UserSteps.Companion.기본_이름
 import com.loopers.domain.user.UserSteps.Companion.기본_이메일
+import com.loopers.domain.user.UserSteps.Companion.사용자_회원가입
 import com.loopers.domain.user.UserSteps.Companion.회원가입_요청_생성
-import com.loopers.domain.user.UserSteps.Companion.회원가입_커맨드_생성
 import com.loopers.interfaces.api.user.response.SignUpResponse
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
@@ -60,7 +60,7 @@ class UserApiE2ETest
 
         @Test
         fun `중복_로그인ID로_가입하면_409_CONFLICT를_반환한다`() {
-            userService.signUp(회원가입_커맨드_생성(loginId = "duplicate", email = "existing@example.com"))
+            userService.signUp(사용자_회원가입(loginId = "duplicate", email = "existing@example.com"))
             val request = 회원가입_요청_생성(loginId = "duplicate", email = "new@example.com")
 
             val response = testRestTemplate.exchange(ENDPOINT, HttpMethod.POST, HttpEntity(request), responseType)

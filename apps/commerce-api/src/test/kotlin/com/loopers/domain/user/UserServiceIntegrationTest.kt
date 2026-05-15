@@ -3,7 +3,7 @@ package com.loopers.domain.user
 import com.loopers.domain.user.UserSteps.Companion.기본_로그인_ID
 import com.loopers.domain.user.UserSteps.Companion.기본_비밀번호
 import com.loopers.domain.user.UserSteps.Companion.기본_이메일
-import com.loopers.domain.user.UserSteps.Companion.회원가입_커맨드_생성
+import com.loopers.domain.user.UserSteps.Companion.사용자_회원가입
 import com.loopers.infrastructure.user.UserJpaRepository
 import com.loopers.infrastructure.user.UserRepositoryImpl
 import com.loopers.support.error.CoreException
@@ -37,7 +37,7 @@ class UserServiceIntegrationTest
 
         @Test
         fun `유효한_커맨드면_사용자가_저장된다`() {
-            val result = userService.signUp(회원가입_커맨드_생성())
+            val result = userService.signUp(사용자_회원가입())
 
             val saved = userJpaRepository.findByLoginId(기본_로그인_ID)
             assertThat(result.loginId).isEqualTo(기본_로그인_ID)
@@ -47,17 +47,26 @@ class UserServiceIntegrationTest
 
         @Test
         fun `중복_로그인ID로_가입하면_CONFLICT가_발생한다`() {
-            userService.signUp(회원가입_커맨드_생성(loginId = "duplicate"))
+            userService.signUp(사용자_회원가입(loginId = "duplicate"))
 
             val ex = assertThrows<CoreException> {
-                userService.signUp(회원가입_커맨드_생성(loginId = "duplicate", email = "other@example.com"))
+                userService.signUp(사용자_회원가입(loginId = "duplicate", email = "other@example.com"))
             }
             assertThat(ex.errorType).isEqualTo(ErrorType.CONFLICT)
         }
 
         @Test
+        fun `도메인_제약을_위반하면_BAD_REQUEST가_발생한다`() {
+            val ex = assertThrows<CoreException> {
+                userService.signUp(사용자_회원가입(rawPassword = "Pass한글1!"))
+            }
+
+            assertThat(ex.errorType).isEqualTo(ErrorType.BAD_REQUEST)
+        }
+
+        @Test
         fun `비밀번호는_원문이_아닌_암호화된_값으로_저장된다`() {
-            userService.signUp(회원가입_커맨드_생성(rawPassword = 기본_비밀번호))
+            userService.signUp(사용자_회원가입(rawPassword = 기본_비밀번호))
 
             val saved = userJpaRepository.findByLoginId(기본_로그인_ID)
             assertThat(saved?.encodedPassword).isNotEqualTo(기본_비밀번호)
@@ -71,7 +80,7 @@ class UserServiceIntegrationTest
                 executor.submit<Result<UserModel>> {
                     runCatching {
                         userService.signUp(
-                            회원가입_커맨드_생성(
+                            사용자_회원가입(
                                 loginId = RACE_LOGIN_ID,
                                 email = "race$index@example.com",
                             ),

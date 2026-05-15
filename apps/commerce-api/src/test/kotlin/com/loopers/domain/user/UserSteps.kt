@@ -39,7 +39,7 @@ class UserSteps {
             email = email,
         )
 
-        fun 회원가입_커맨드_생성(
+        fun 사용자_회원가입(
             loginId: String = 기본_로그인_ID,
             rawPassword: String = 기본_비밀번호,
             name: String = 기본_이름,

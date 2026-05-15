@@ -22,7 +22,7 @@ class UserController(
     override fun signUp(
         @Valid @RequestBody request: SignUpRequest,
     ): ApiResponse<SignUpResponse> {
-        return userFacade.signUp(request.toCriteria())
+        return userFacade.signUp(request.toCommand())
             .let { SignUpResponse.from(it) }
             .let { ApiResponse.success(it) }
     }

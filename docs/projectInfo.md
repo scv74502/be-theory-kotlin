@@ -191,5 +191,7 @@ API 예외 응답 상태는 Spring 표준 `HttpStatus` 로 표현한다.
 - 비밀번호: `Password` VO 가 평문 규칙 검증과 인코딩 생성 책임을 보유하며, 생성 후에는 인코딩된 값만 보관.
 - 암호화 포트: `PasswordEncoder` ↔ BCrypt 어댑터(인프라)
 - 회원가입 진입점: `UserService.signUp(command)`
+- 중복 로그인ID: `UserService` 가 사전 조회로 검증하고, 저장 시점 DB Unique constraint 충돌은
+  `UserRepositoryImpl` 이 `DuplicateLoginIdException` 경계 예외로 변환한 뒤 `UserService` 가 409 비즈니스 에러로 변환한다.
 - 도메인 모델과 JPA Entity 는 분리한다. `UserModel`/`Password` 는 POJO 로 유지하고,
   infrastructure 의 JPA Entity 가 테이블 매핑과 도메인 변환을 담당한다.

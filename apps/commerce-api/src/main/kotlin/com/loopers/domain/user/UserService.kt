@@ -13,17 +13,33 @@ class UserService(
 ) {
     @Transactional
     fun signUp(command: UserCommand.SignUp): UserModel {
-        if (userRepository.existsByLoginId(command.loginId)) {
-            throw CoreException(ErrorType.CONFLICT, "이미 가입된 로그인 ID 입니다.")
+        return try {
+            if (userRepository.existsByLoginId(command.loginId)) {
+                throwDuplicateLoginIdConflict()
+            }
+            val password = Password.of(command.rawPassword, command.birthday, passwordEncoder)
+            val user = UserModel(
+                loginId = command.loginId,
+                password = password,
+                name = command.name,
+                birthday = command.birthday,
+                email = command.email,
+            )
+            try {
+                userRepository.save(user)
+            } catch (_: DuplicateLoginIdException) {
+                throwDuplicateLoginIdConflict()
+            }
+        } catch (e: UserDomainException) {
+            throw CoreException(ErrorType.BAD_REQUEST, e.message)
         }
-        val password = Password.of(command.rawPassword, command.birthday, passwordEncoder)
-        val user = UserModel(
-            loginId = command.loginId,
-            password = password,
-            name = command.name,
-            birthday = command.birthday,
-            email = command.email,
-        )
-        return userRepository.save(user)
+    }
+
+    private fun throwDuplicateLoginIdConflict(): Nothing {
+        throw CoreException(ErrorType.CONFLICT, DUPLICATE_LOGIN_ID_MESSAGE)
+    }
+
+    companion object {
+        private const val DUPLICATE_LOGIN_ID_MESSAGE = "이미 가입된 로그인 ID 입니다."
     }
 }
