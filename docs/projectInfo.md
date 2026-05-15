@@ -1,6 +1,6 @@
-# week1-TDD
+# loopers-kotlin-spring-template
 
-Spring Boot + Kotlin 기반의 TDD 학습용 단일 모듈 프로젝트.
+Spring Boot + Kotlin 기반의 Loopers 커머스 멀티 모듈 프로젝트.
 
 이 문서는 프로젝트의 현재 사실과 요구사항을 기록한다.
 개발 방식, DDD 경계, 테스트 작성 규칙은 `docs/groundRules.md` 를 따른다.
@@ -9,13 +9,13 @@ Spring Boot + Kotlin 기반의 TDD 학습용 단일 모듈 프로젝트.
 
 | 분류 | 항목 | 버전 |
 | --- | --- | --- |
-| 언어 | Kotlin (JVM) | 1.9.25 |
+| 언어 | Kotlin (JVM) | 2.0.20 |
 | 런타임 | Java Toolchain | 21 |
 | 빌드 | Gradle (Kotlin DSL) | 8.14.4 (wrapper) |
-| 프레임워크 | Spring Boot | 3.5.14 |
+| 프레임워크 | Spring Boot | 3.4.4 |
 | 의존성 관리 | io.spring.dependency-management | 1.1.7 |
 | ORM | Spring Data JPA (Hibernate) | Spring Boot 관리 |
-| DB | H2 (runtime) | Spring Boot 관리 |
+| DB | MySQL | mysql-connector-j / Testcontainers |
 | API 문서 | springdoc-openapi (webmvc-ui) | 2.8.16 |
 | 직렬화 | jackson-module-kotlin | Spring Boot 관리 |
 | Validation | spring-boot-starter-validation | Spring Boot 관리 |
@@ -29,77 +29,41 @@ Spring Boot + Kotlin 기반의 TDD 학습용 단일 모듈 프로젝트.
 - 테스트 러너: `useJUnitPlatform()`
 
 ## 프로젝트 메타
-- `group`: `org.sampletask`
-- `version`: `0.0.1-SNAPSHOT`
-- `rootProject.name`: `week1-tdd`
-- 기본 패키지: `org.sampletask.week1tdd`
+- `group`: `com.loopers`
+- `version`: Git short hash 기반
+- `rootProject.name`: `loopers-kotlin-spring-template`
+- 기본 패키지: `com.loopers`
 
 ## 모듈 구조
 
-단일 모듈(루트 프로젝트, 서브 모듈 없음).
+멀티 모듈 구조.
 ```
-week1-TDD/
-├── build.gradle.kts          # 빌드/의존성 정의
-├── settings.gradle.kts       # 루트 프로젝트 설정
-├── gradle/wrapper/           # Gradle 8.14.4 wrapper
-├── gradlew, gradlew.bat
-└── src/
-    ├── main/
-    │   ├── kotlin/org/sampletask/week1tdd/
-    │   │   ├── Week1TddApplication.kt           # @SpringBootApplication 진입점
-    │   │   ├── common/
-    │   │   │   ├── constant/AuthHeaders.kt      # 인증 헤더 상수
-    │   │   │   ├── error/HttpStatusException.kt # HttpStatus 기반 공통 예외
-    │   │   │   └── web/ApiExceptionHandler.kt   # 전역 API 예외 핸들러
-    │   │   ├── domain/user/
-    │   │   │   ├── application/
-    │   │   │   │   ├── port/UserRepository.kt   # 사용자 조회/저장 포트
-    │   │   │   │   ├── UserRegisterService.kt   # 사용자 회원가입 유스케이스
-    │   │   │   │   └── UserQueryService.kt      # 사용자 인증/조회 유스케이스
-    │   │   │   ├── infrastructure/persistence/
-    │   │   │   │   ├── UserEntity.kt            # 사용자 JPA Entity
-    │   │   │   │   ├── UserJpaRepository.kt     # Spring Data JPA Repository
-    │   │   │   │   └── UserPersistenceAdapter.kt # application port 구현
-    │   │   │   ├── presentation/
-    │   │   │   │   ├── controller/UserController.kt
-    │   │   │   │   ├── controller/UserRegisterController.kt
-    │   │   │   │   ├── dto/request/RegistUserRequest.kt
-    │   │   │   │   └── dto/response/RetrieveCurrentUserResponse.kt
-    │   │   │   ├── model/User.kt                # 애그리거트 루트
-    │   │   │   ├── vo/{Birthday,Email,LoginId,Name,Password}.kt
-    │   │   │   └── port/PasswordEncoder.kt      # 도메인 아웃바운드 포트
-    │   │   ├── infrastructure/security/
-    │   │   │   ├── BCryptPasswordEncoder.kt   # PasswordEncoder 구현(Spring Security 위임)
-    │   │   │   └── SecurityConfig.kt                  # PasswordEncoder 빈 정의
-    │   └── resources/
-    │       ├── application.properties           # spring.application.name=week1-TDD
-    │       ├── static/
-    │       └── templates/
-    └── test/
-        └── kotlin/org/sampletask/week1tdd/
-            ├── Week1TddApplicationTests.kt      # @SpringBootTest 컨텍스트 로드
-            ├── domain/user/
-            │   ├── UserTestSteps.kt             # 도메인 루트 픽스처 (object + default param 빌더)
-            │   ├── application/{UserQueryServiceTest,UserRegisterServiceTest}.kt
-            │   ├── model/UserTest.kt
-            │   └── vo/{Birthday,Email,LoginId,Name,Password}Test.kt
-            └── domain/user/presentation/
-                ├── controller/{UserApiTest,UserRegisterApiTest}.kt
-                └── dto/response/RetrieveCurrentUserResponseTest.kt
+loopers-kotlin-spring-template/
+├── apps/
+│   ├── commerce-api/       # 사용자 API, 도메인, 애플리케이션, 인프라 구현
+│   ├── commerce-batch/     # 배치 애플리케이션
+│   └── commerce-streamer/  # 스트리밍 애플리케이션
+├── modules/
+│   ├── jpa/                # JPA/DataSource 설정과 테스트 컨테이너
+│   ├── redis/              # Redis 설정과 테스트 컨테이너
+│   └── kafka/              # Kafka 설정
+└── supports/
+    ├── jackson/
+    ├── logging/
+    └── monitoring/
 ```
 
 ## 자주 쓰는 명령
 
 ```bash
-./gradlew bootRun        # 애플리케이션 실행
-./gradlew test           # 테스트 실행 (JUnit Platform)
-./gradlew build          # 빌드 + 테스트
-./gradlew bootJar        # 실행 가능한 JAR 생성
+./gradlew :apps:commerce-api:bootRun
+./gradlew :apps:commerce-api:test
+./gradlew ktlintCheck
 ```
 
 ## 참고
 - Swagger UI: `springdoc-openapi-starter-webmvc-ui` 의존성으로 기본 경로 `/swagger-ui.html` 사용 가능.
-- H2는 `runtimeOnly`로만 포함 — 별도 `spring.datasource` 설정 없이 임베디드 모드로 동작.
+- `test` 프로필은 MySQL Testcontainers 기반으로 동작한다.
 
 ## 설계/테스트 규칙 위치
 
@@ -115,7 +79,7 @@ week1-TDD/
 | `X-Loopers-LoginId` | 로그인 아이디 |
 | `X-Loopers-LoginPw` | 로그인 비밀번호 (평문, 서버에서 인코딩 후 매칭) |
 
-- **회원가입 (`POST /users` 등 가입 API)**: 가입 시점에는 계정이 없으므로 **request body** 로 `loginId`, `password`, `name`, `birthday`, `email` 전달. 위 헤더는 사용하지 않는다.
+- **회원가입 (`POST /api/users`)**: 가입 시점에는 계정이 없으므로 **request body** 로 `loginId`, `password`, `name`, `birthday`, `email` 전달. 위 헤더는 사용하지 않는다.
 - **그 외 사용자 정보 필요 API**: 반드시 `X-Loopers-LoginId`, `X-Loopers-LoginPw` 헤더로 인증한다. 누락/불일치 시 `401`.
 - 비밀번호는 저장 시 BCrypt 로 단방향 인코딩되며, 매칭은 `PasswordEncoder.matches(raw, encoded)` 로 수행한다.
 
@@ -164,7 +128,7 @@ API 예외 응답 상태는 Spring 표준 `HttpStatus` 로 표현한다.
 
 ## 회원가입 API
 
-### `POST /users`
+### `POST /api/users`
 
 신규 사용자를 가입시킨다.
 
@@ -180,7 +144,7 @@ API 예외 응답 상태는 Spring 표준 `HttpStatus` 로 표현한다.
 }
 ```
 
-- request DTO 는 `presentation/dto/request/RegistUserRequest` 를 사용한다.
+- request DTO 는 `interfaces/api/user/request/SignUpRequest` 를 사용한다.
 - `loginId`: 영문/숫자 4~20자, 이미 가입된 값은 사용할 수 없다.
 - `password`: 8~16자, 영문 대문자/소문자/숫자/특수문자 각 1개 이상, 생년월일 토큰(`yyyyMMdd`/`yyMMdd`/`MMdd`) 포함 불가.
 - `name`: 공백이 아닌 1~50자.
@@ -189,7 +153,17 @@ API 예외 응답 상태는 Spring 표준 `HttpStatus` 로 표현한다.
 
 #### Response `201 Created`
 
-응답 body 는 사용하지 않는다.
+가입된 회원 정보를 반환한다.
+
+```json
+{
+  "id": 1,
+  "loginId": "user01",
+  "name": "홍길동",
+  "birthday": "1996-01-01",
+  "email": "user@example.com"
+}
+```
 
 #### Error
 
@@ -198,6 +172,9 @@ API 예외 응답 상태는 Spring 표준 `HttpStatus` 로 표현한다.
 | 요청 필드 포맷 오류 | `400 Bad Request` |
 | 비밀번호에 생년월일 포함 | `400 Bad Request` |
 | 이미 가입된 로그인ID | `409 Conflict` |
+
+로그인ID 유일성은 DB unique constraint 가 최종 보장한다. 서비스는 사전 중복 검사를 수행하되,
+실제 저장 시점에 다른 요청이 같은 로그인ID를 먼저 선점하면 constraint 예외를 `409 Conflict` 비즈니스 에러로 변환한다.
 
 ## 도메인 규칙 — 사용자 (User)
 
@@ -209,9 +186,10 @@ API 예외 응답 상태는 Spring 표준 `HttpStatus` 로 표현한다.
 | 생년월일 | `Birthday` | `LocalDate`, 과거 날짜만 허용 |
 | 이메일 | `Email` | RFC 5322 간이 형식 |
 
-- 도메인 루트 패키지: `org.sampletask.week1tdd.domain.user`
-- 애그리거트 루트: `model/User`
+- 도메인 루트 패키지: `com.loopers.domain.user`
+- 애그리거트 루트: `UserModel`
 - 비밀번호: `Password` VO 가 평문 규칙 검증과 인코딩 생성 책임을 보유하며, 생성 후에는 인코딩된 값만 보관.
-- 암호화 포트: `port/PasswordEncoder` ↔ BCrypt 어댑터(인프라)
-- 회원가입 진입점: `User.register(loginId, rawPassword, name, birthday, email, encoder)`
-- 로그인ID 유일성은 도메인 객체 자체로는 보장 불가 → `UserRegisterService` 에서 Repository 사전 조회로 강제
+- 암호화 포트: `PasswordEncoder` ↔ BCrypt 어댑터(인프라)
+- 회원가입 진입점: `UserService.signUp(command)`
+- 도메인 모델과 JPA Entity 는 분리한다. `UserModel`/`Password` 는 POJO 로 유지하고,
+  infrastructure 의 JPA Entity 가 테이블 매핑과 도메인 변환을 담당한다.

@@ -5,6 +5,7 @@ import com.loopers.domain.user.UserSteps.Companion.기본_비밀번호
 import com.loopers.domain.user.UserSteps.Companion.기본_이메일
 import com.loopers.domain.user.UserSteps.Companion.회원가입_커맨드_생성
 import com.loopers.infrastructure.user.UserJpaRepository
+import com.loopers.infrastructure.user.UserRepositoryImpl
 import com.loopers.support.error.CoreException
 import com.loopers.support.error.ErrorType
 import com.loopers.utils.DatabaseCleanUp
@@ -14,6 +15,12 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.boot.test.context.TestConfiguration
+import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Primary
+import java.util.concurrent.CyclicBarrier
+import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
 
 @SpringBootTest
 class UserServiceIntegrationTest
@@ -54,5 +61,60 @@ class UserServiceIntegrationTest
 
             val saved = userJpaRepository.findByLoginId(기본_로그인_ID)
             assertThat(saved?.password?.encoded).isNotEqualTo(기본_비밀번호)
+        }
+
+        @Test
+        fun `아이디_선점당할시_가입실패후_409에러`() {
+            val executor = Executors.newFixedThreadPool(2)
+
+            val results = (1..2).map { index ->
+                executor.submit<Result<UserModel>> {
+                    runCatching {
+                        userService.signUp(
+                            회원가입_커맨드_생성(
+                                loginId = RACE_LOGIN_ID,
+                                email = "race$index@example.com",
+                            ),
+                        )
+                    }
+                }
+            }.map { it.get(10, TimeUnit.SECONDS) }
+            executor.shutdown()
+
+            val failures = results.mapNotNull { it.exceptionOrNull() }
+            assertThat(results.count { it.isSuccess }).isEqualTo(1)
+            assertThat(failures).hasSize(1)
+            assertThat(failures.single()).isInstanceOf(CoreException::class.java)
+            assertThat((failures.single() as CoreException).errorType).isEqualTo(ErrorType.CONFLICT)
+        }
+
+        @TestConfiguration
+        class RaceConditionConfig {
+            @Bean
+            @Primary
+            fun raceAwareUserRepository(delegate: UserRepositoryImpl): UserRepository =
+                RaceAwareUserRepository(delegate)
+        }
+
+        private class RaceAwareUserRepository(
+            private val delegate: UserRepository,
+        ) : UserRepository {
+            private val barrier = CyclicBarrier(2)
+
+            override fun existsByLoginId(loginId: String): Boolean {
+                if (loginId == RACE_LOGIN_ID) {
+                    barrier.await(5, TimeUnit.SECONDS)
+                    return false
+                }
+                return delegate.existsByLoginId(loginId)
+            }
+
+            override fun save(user: UserModel): UserModel = delegate.save(user)
+
+            override fun findByLoginId(loginId: String): UserModel? = delegate.findByLoginId(loginId)
+        }
+
+        companion object {
+            private const val RACE_LOGIN_ID = "raceUser"
         }
     }
