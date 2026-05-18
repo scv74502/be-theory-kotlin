@@ -41,3 +41,6 @@ out/
 
 ### OMC ###
 .omc
+
+### Local working docs ###
+docs/todo-list.md

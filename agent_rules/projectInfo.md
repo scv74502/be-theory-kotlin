@@ -3,7 +3,7 @@
 Spring Boot + Kotlin 기반의 Loopers 커머스 멀티 모듈 프로젝트.
 
 이 문서는 프로젝트의 현재 사실과 요구사항을 기록한다.
-개발 방식, DDD 경계, 테스트 작성 규칙은 `docs/groundRules.md` 를 따른다.
+개발 방식, DDD 경계, 테스트 작성 규칙은 `agent_rules/groundRules.md` 를 따른다.
 
 ## 기술 스택
 
@@ -88,8 +88,9 @@ domain/user/
 
 ## 설계/테스트 규칙 위치
 
-- DDD 아키텍처 규칙, JPA Entity 와 POJO 도메인 객체 분리 원칙은 `docs/groundRules.md` 의 "아키텍처 규칙 (DDD)" 절을 따른다.
-- 테스트 종류, 파일명 접미사, 디렉토리 정책, 픽스처(`*TestSteps`) 위치, 테스트 명명 규약, 모킹 정책, 의미 없는 테스트 회피 원칙은 `docs/groundRules.md` 의 "테스트 규약" 절을 따른다.
+- DDD 아키텍처 규칙, JPA Entity 와 POJO 도메인 객체 분리 원칙은 `agent_rules/groundRules.md` 의 "아키텍처 규칙 (DDD)" 절을 따른다.
+- 테스트 종류, 파일명 접미사, 디렉토리 정책, 픽스처(`*TestSteps`) 위치, 테스트 명명 규약, 모킹 정책, 의미 없는 테스트 회피 원칙은 `agent_rules/groundRules.md` 의 "테스트 규약" 절을 따른다.
+- PR 코드리뷰 기반 작업계획은 `agent_rules/groundRules.md` 의 "PR 코드리뷰 대응 계획" 절을 따른다.
 
 ## 인증 헤더 규약
 

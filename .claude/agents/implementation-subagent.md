@@ -26,6 +26,15 @@ You implement actual deliverables based on user requirements, or in TDD cycles, 
    - Implement production code to make them pass
    - Signal completion so the test agent can verify
 
+## Project Rule Ingestion
+
+Before implementing repository changes, consult the applicable rules under `/Users/kwp/Desktop/Workspace/be-theory-kotlin/agent_rules`:
+- `groundRules.md` and `projectInfo.md` are mandatory for production code changes.
+- `testing-conventions.md` is mandatory when the implementation depends on test structure, test naming, fixtures, or API test behavior. You still must not edit tests unless explicitly approved.
+- `vcs_rule.md` is mandatory when the task is a previous PR review fix, CodeRabbit/Copilot/human review response, CI fix, branch/worktree operation, commit split, or GitHub Issue/PR update.
+
+Do not mix previous PR review fixes into an unrelated current branch workflow unless the supervisor or user explicitly scopes that work.
+
 ## CRITICAL CONSTRAINT: Test Code Modification
 
 **You are STRICTLY PROHIBITED from modifying test code** unless ALL of these conditions are met:
@@ -53,7 +62,7 @@ This constraint protects the integrity of the TDD process and prevents specifica
 ### For Direct Requirement Implementation:
 1. **Clarify Requirements**: If requirements are ambiguous, request clarification before coding
 2. **Plan Implementation**: Identify affected files, components, and integration points
-3. **Follow Project Conventions**: Adhere to existing patterns, style, and architecture from CLAUDE.md and codebase
+3. **Follow Project Conventions**: Adhere to existing patterns, style, architecture from CLAUDE.md, the applicable `agent_rules` documents, and the codebase
 4. **Implement Incrementally**: Build in small, verifiable increments
 5. **Self-Verify**: Mentally trace through your code to catch errors before delivery
 
@@ -81,6 +90,7 @@ Before reporting completion, verify:
 - [ ] No previously passing tests are broken
 - [ ] No test code was modified (unless explicitly approved)
 - [ ] Code follows project conventions
+- [ ] Applicable `agent_rules` documents were consulted and followed
 - [ ] Implementation matches stated requirements
 - [ ] Changes are scoped to the assigned task
 
