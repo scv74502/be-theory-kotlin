@@ -5,6 +5,7 @@
 이 문서는 `01-requirements.md`와 `04-erd.md`를 기준으로 한 목표 정적 구조를 정리한다.
 현재 구현된 user 도메인은 패턴 템플릿으로 사용하고, 미구현 도메인은 같은 패키지/계층 규칙을 적용한 목표 설계로 표현한다.
 특히 이 문서의 목적은 컨트롤러/DB 테이블 목록이 아니라 **도메인 객체가 어떤 값을 갖고, 어떤 불변식을 지키며, 어떤 행위를 책임지는지**를 드러내는 것이다.
+Round 2 핵심 설계 범위는 브랜드/상품, 좋아요, 주문, 재고, 결제 기록이며, user 도메인은 인증과 패턴 레퍼런스로만 둔다.
 
 기준은 다음과 같다.
 
@@ -59,6 +60,7 @@
 | Product | `ProductModel`, `StockModel` | `ProductName`, `Money`, `Quantity`, `StockQuantity` | 상품은 존재하는 브랜드에 속함, 가격은 음수 불가, 재고는 음수 불가, 삭제된 상품은 주문 불가 | 상품 정보 변경, 삭제, 재고 초기화/차감 |
 | Like | `LikeModel` | `LikeKey` | 사용자-상품 쌍은 하나의 현재 상태만 가짐, 등록/취소는 멱등 | 좋아요 생성, 좋아요 취소, 내 좋아요 조회 |
 | Order | `OrderModel`, `OrderItemModel` | `Money`, `Quantity` | 주문 항목 1개 이상, 수량 양수, 주문 시점 상품명/단가 스냅샷 불변, 총액은 항목 합계와 일치 | 주문 생성, 금액 계산, 본인 주문 검증 |
+| Payment | `PaymentModel` | `PaymentMethod`, `PaymentStatus`, `Money` | 결제는 주문에 속함, 결제 금액은 주문 결제 금액과 일치, 상태 전이는 요청 후 승인/실패 | 결제 요청 기록, 승인 기록, 실패 기록 |
 
 ## 1. User 패턴 레퍼런스
 
@@ -248,6 +250,7 @@ classDiagram
 - `AdminModel`은 관리자 요청자의 식별 컨텍스트다. 관리자 권한은 `Ldap` 값으로 식별한다.
 - `AdminOperationLogModel`은 브랜드/상품 변경 작업의 결과를 기록하는 독립 애그리거트다.
 - `targetType`과 `targetId`는 다형 참조다. DB FK를 걸지 않는 대신, Facade가 변경 대상 존재 여부와 작업 성공 여부를 확인한 뒤 로그를 생성한다.
+- 실패한 변경 요청이나 조회 작업은 성공 이력으로 기록하지 않는다.
 - 조회 작업은 변경 로그 대상이 아니다. 변경 전/후 값 감사가 필요해지면 `detail`에 JSON/TEXT 스냅샷을 담는다.
 
 해석:
@@ -571,7 +574,7 @@ classDiagram
 
     class OrderFacade {
         <<facade>>
-        placeOrder(userId, items) OrderInfo
+        placeOrder(userId, items, paymentMethod) OrderInfo
         findMyOrders(userId, period) List
         findMyOrder(userId, orderId) OrderInfo
         findAdminOrders(page) List
@@ -593,6 +596,14 @@ classDiagram
     class StockService {
         <<service>>
         decrease(items) void
+        restore(items) void
+    }
+
+    class PaymentService {
+        <<service>>
+        requestPayment(orderId, method, amount) PaymentModel
+        approve(paymentId, externalTransactionId) PaymentModel
+        fail(paymentId, reason) PaymentModel
     }
 
     class OrderRepository {
@@ -614,6 +625,7 @@ classDiagram
     OrderFacade ..> OrderService
     OrderFacade ..> ProductService
     OrderFacade ..> StockService
+    OrderFacade ..> PaymentService
     OrderService ..> OrderRepository
     OrderRepository ..> OrderJpaEntity
     OrderRepository ..> OrderItemJpaEntity
@@ -634,15 +646,96 @@ classDiagram
 - 주문은 항목을 1개 이상 가져야 하며, 총액은 항목별 `linePrice` 합계로 계산한다.
 - `OrderItemModel`은 주문 시점 상품명과 단가를 스냅샷으로 보관한다. 이후 상품명/가격이 바뀌어도 과거 주문 항목 값은 바뀌지 않는다.
 - 본인 주문 조회 검증은 `OrderModel.belongsTo(userId)` 같은 도메인 행위로 표현한다. 외부 응답은 자원 존재 노출을 피하기 위해 정책에 맞는 상태로 변환한다.
-- 주문 생성 유스케이스는 `OrderFacade`가 상품 주문 가능성 조회, 재고 차감, 주문 저장을 하나의 트랜잭션으로 조합한다.
+- 주문 생성 유스케이스는 `OrderFacade`가 상품 주문 가능성 조회, 재고 차감, 주문 저장, 결제 기록을 조합한다.
+- 외부 결제 호출은 어떤 DB 트랜잭션에도 속하지 않는다. `OrderFacade` 는 (TX1: 주문·재고·결제 요청 기록) → 외부 호출 → (TX2: 결제 결과 반영, 실패 시 `StockService.restore` 보상) 의 3단 구조로 유스케이스를 구성한다.
 
 해석:
 
-- 주문 생성과 재고 차감은 하나의 트랜잭션 안에서 처리되어야 한다.
+- 주문 생성, 재고 차감, 결제 요청 기록은 TX1 으로 묶고, 외부 결제 호출은 트랜잭션 밖에서 수행한 뒤 TX2 로 결과를 반영한다.
 - 재고 부족 시 `409 Conflict`로 전체 주문을 거부하고, 어떤 항목도 차감하지 않는다.
-- 현재 주문은 row 생성이 주문 확정을 의미한다. 대기/취소/결제 완료가 필요해지면 `OrderStatus`와 상태 전이 정책을 추가한다.
+- 현재 설계는 별도 `OrderStatus`를 도입하지 않고 주문 데이터와 최신 결제 기록을 함께 보아 주문 결과를 판단한다. 대기/취소/환불 상태 전이 정책이 확정되면 `OrderStatus`를 추가한다.
 
-## 7. 공유 API 인프라
+## 7. Payment
+
+결제는 주문과 연결된 지불 시도와 결과를 기록한다.
+현재 단계에서는 결제수단별 상세 정책을 확정하지 않고, 결제 기록 테이블과 외부 결제 port만 둔다.
+
+```mermaid
+classDiagram
+    direction LR
+
+    class PaymentModel {
+        <<aggregate_root>>
+        Long id
+        Long orderId
+        PaymentMethod method
+        PaymentStatus status
+        Money amount
+        String externalTransactionIdOrNull
+        String failedReasonOrNull
+        DateTime requestedAt
+        DateTime approvedAtOrNull
+        DateTime failedAtOrNull
+        request(orderId, method, amount) PaymentModel
+        approve(externalTransactionId) PaymentModel
+        fail(reason) PaymentModel
+        isApproved() Boolean
+    }
+
+    class PaymentService {
+        <<service>>
+        requestPayment(orderId, method, amount) PaymentModel
+        approve(paymentId, externalTransactionId) PaymentModel
+        fail(paymentId, reason) PaymentModel
+    }
+
+    class PaymentRepository {
+        <<port>>
+        save(payment) PaymentModel
+        findLatestByOrderId(orderId) PaymentModel
+    }
+
+    class PaymentGatewayPort {
+        <<port>>
+        approve(command) PaymentGatewayResult
+    }
+
+    class PaymentRepositoryImpl {
+        <<adapter>>
+    }
+
+    class PaymentJpaEntity {
+        <<jpa_entity>>
+    }
+
+    PaymentService ..> PaymentRepository
+    PaymentService ..> PaymentGatewayPort
+    PaymentRepository <|.. PaymentRepositoryImpl
+    PaymentRepositoryImpl ..> PaymentJpaEntity
+    PaymentJpaEntity ..> PaymentModel
+```
+
+### Value Objects
+
+| VO | 책임 |
+| --- | --- |
+| `PaymentMethod` | 결제 수단 식별. 현재는 `CARD` 같은 최소 값으로 시작하고 결제수단별 정책은 추후 구체화 |
+| `PaymentStatus` | `REQUESTED` → `APPROVED` 또는 `FAILED` 상태 전이 |
+| `Money` | 결제 금액. 주문의 `paymentPrice`와 일치해야 함 |
+
+### 객체 책임/불변식
+
+- `PaymentModel`은 외부 결제 시스템에 대한 요청과 결과를 보관하는 결제 기록 애그리거트다.
+- 하나의 주문은 재시도나 수단 변경으로 여러 결제 기록을 가질 수 있다.
+- 결제 상태는 요청 후 승인 또는 실패로만 전이한다. 승인된 기록에는 외부 거래 식별자를 보관한다.
+- outbox 는 현재 클래스 구조에 포함하지 않는다. 결제수단별 비동기 승인, 웹훅, 재시도, 이벤트 발행 안정성이 필요해질 때 별도 `OutboxEventModel`/`outbox_events` 로 추가한다.
+
+해석:
+
+- `PaymentGatewayPort`는 외부 결제 시스템을 추상화한다.
+- 결제 기록은 결제 수단 자체의 상세 모델이 아니라 주문별 결제 시도와 상태를 남기기 위한 원장이다.
+
+## 8. 공유 API 인프라
 
 이 절은 도메인 객체 설계의 핵심은 아니지만, 도메인/애플리케이션 실패가 API 응답으로 변환되는 경계를 확인하기 위한 부록이다.
 API 예외 응답은 `CoreException`과 `ErrorType`을 기준으로 `ApiControllerAdvice`가 변환한다.
@@ -691,7 +784,7 @@ classDiagram
 - 도메인/애플리케이션 계층은 `CoreException(ErrorType)`으로 실패 의미를 전달한다.
 - 응답 상태 매핑은 API 어댑터 계층의 공통 처리로 모은다.
 
-## 8. 도메인 간 협력 맵
+## 9. 도메인 간 협력 맵
 
 도메인 간 협력은 Facade에서만 조합한다.
 Service끼리 직접 의존하지 않는 것을 기본 규칙으로 둔다.
@@ -737,6 +830,9 @@ classDiagram
     class OrderService {
         <<service>>
     }
+    class PaymentService {
+        <<service>>
+    }
 
     UserFacade ..> UserService
     BrandFacade ..> BrandService
@@ -751,6 +847,7 @@ classDiagram
     OrderFacade ..> OrderService
     OrderFacade ..> ProductService
     OrderFacade ..> StockService
+    OrderFacade ..> PaymentService
 ```
 
 해석:
