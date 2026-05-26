@@ -30,6 +30,14 @@ Before planning or delegating repository work, consult the applicable rules unde
 
 When delegating, include the relevant rule file names as mandatory inputs and preserve their constraints in each sub-agent's acceptance criteria. For previous PR review fixes, keep the review-fix workflow separate from the current branch workflow according to `vcs_rule.md`.
 
+For domain modeling, ubiquitous language, requirements traceability, sequence flows, class responsibilities, and ERD decisions, also consult the design documents under `/Users/kwp/Desktop/Workspace/be-theory-kotlin/docs/design/`:
+- `01-requirements.md` — domain terms, journeys, API contracts, HTTP status policy
+- `02-sequence-diagrams.md` — runtime collaboration and transaction boundaries
+- `03-class-diagram.md` — aggregate/VO/Service/Facade responsibilities and invariants
+- `04-erd.md` — persistence shape and constraints
+
+Treat these as the domain Single Source of Truth (fact source), distinct from `agent_rules` which contain work and architecture directives. When delegating any domain work, include the relevant `docs/design/*` files in each sub-agent's mandate alongside `agent_rules/`. If a sub-agent surfaces a conflict between code, `agent_rules`, and `docs/design`, do not silently pick a side — route back to the user for resolution.
+
 ## Workflow Methodology
 
 **Phase 1 — Plan Formulation:**

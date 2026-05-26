@@ -92,6 +92,13 @@ domain/user/
 - 테스트 종류, 파일명 접미사, 디렉토리 정책, 픽스처(`*TestSteps`) 위치, 테스트 명명 규약, 모킹 정책, 의미 없는 테스트 회피 원칙은 `agent_rules/groundRules.md` 의 "테스트 규약" 절을 따른다.
 - PR 코드리뷰 기반 작업계획은 `agent_rules/groundRules.md` 의 "PR 코드리뷰 대응 계획" 절을 따른다.
 
+## 도메인 규칙 SoT
+
+- user 외 도메인 (Brand / Product / Like / Order / Payment 등) 의 도메인 용어, 요구사항, 불변식, 시퀀스, 클래스 책임, ERD 는 `/Users/kwp/Desktop/Workspace/be-theory-kotlin/docs/design/01-requirements.md` ~ `04-erd.md` 를 Single Source of Truth 로 한다.
+- 본 문서는 기술 스택·모듈·user 도메인 API 명세 같은 프로젝트 사실을 기록한다. 도메인 규칙 갱신은 docs/design 을 먼저 변경한 뒤 필요 시 본 문서에 반영한다.
+- 도메인 작업 시 본 문서, `agent_rules/groundRules.md`, 위 docs/design 4종을 함께 선행 참조한다.
+- docs/design 과 코드 또는 본 문서가 충돌하면 작업을 중단하고 사용자에게 확인한다.
+
 ## 인증 헤더 규약
 
 유저 정보가 필요한 모든 요청은 아래 두 헤더로 식별/인증한다.
