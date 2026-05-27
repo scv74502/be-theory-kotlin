@@ -2,11 +2,15 @@ package com.loopers.domain.user.unit
 
 import com.loopers.domain.user.exception.InvalidPasswordException
 import com.loopers.domain.user.exception.InvalidUserException
+import com.loopers.domain.user.port.PasswordEncoder
 import com.loopers.domain.user.support.UserSteps.Companion.비밀번호_생성
 import com.loopers.domain.user.vo.Birthday
 import com.loopers.domain.user.vo.Email
 import com.loopers.domain.user.vo.LoginId
 import com.loopers.domain.user.vo.Name
+import com.loopers.domain.user.vo.Password
+import io.mockk.every
+import io.mockk.mockk
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -84,6 +88,19 @@ class UserVoValidationTest {
     fun `비밀번호는_8자와_16자_경계값이면_생성된다`() {
         assertThat(비밀번호_생성(rawPassword = "Abcde1!@").encoded).isEqualTo("ENC(Abcde1!@)")
         assertThat(비밀번호_생성(rawPassword = "AbcdefghijklmN1!").encoded).isEqualTo("ENC(AbcdefghijklmN1!)")
+    }
+
+    @Test
+    fun `비밀번호는_인증_행위로_원문과_일치_여부를_확인한다`() {
+        val rawPassword = "Password1!"
+        val encodedPassword = "ENC($rawPassword)"
+        val encoder = mockk<PasswordEncoder>()
+        every { encoder.encode(rawPassword) } returns encodedPassword
+        every { encoder.matches(rawPassword, encodedPassword) } returns true
+
+        val password = Password.of(rawPassword, Birthday.of(LocalDate.of(1990, 5, 14)), encoder)
+
+        assertThat(password.matches(rawPassword, encoder)).isTrue()
     }
 
     @Test
