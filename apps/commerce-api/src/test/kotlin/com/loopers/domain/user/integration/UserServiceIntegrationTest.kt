@@ -2,6 +2,7 @@ package com.loopers.domain.user.integration
 
 import com.loopers.domain.user.application.UserService
 import com.loopers.domain.user.application.command.UserChangePasswordCommand
+import com.loopers.domain.user.exception.DuplicateLoginIdException
 import com.loopers.domain.user.infrastructure.persistence.UserJpaRepository
 import com.loopers.domain.user.infrastructure.persistence.UserRepositoryImpl
 import com.loopers.domain.user.model.UserModel
@@ -54,12 +55,15 @@ class UserServiceIntegrationTest
 
         @Test
         fun `중복_로그인ID로_가입하면_CONFLICT가_발생한다`() {
-            userService.signUp(사용자_회원가입(loginId = "duplicate"))
+            val loginId = "duplicate"
+            userService.signUp(사용자_회원가입(loginId = loginId))
 
             val ex = assertThrows<CoreException> {
-                userService.signUp(사용자_회원가입(loginId = "duplicate", email = "other@example.com"))
+                userService.signUp(사용자_회원가입(loginId = loginId, email = "other@example.com"))
             }
             assertThat(ex.errorType).isEqualTo(ErrorType.CONFLICT)
+            assertThat(ex.message).doesNotContain(loginId)
+            assertThat(ex.cause).isInstanceOf(DuplicateLoginIdException::class.java)
         }
 
         @Test
