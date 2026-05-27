@@ -15,7 +15,7 @@ class Birthday private constructor(
     companion object {
         fun of(value: LocalDate): Birthday {
             if (!value.isBefore(LocalDate.now())) {
-                throw InvalidUserException("생년월일은 미래일 수 없습니다.")
+                throw InvalidUserException("생년월일은 과거 일자여야 합니다.")
             }
             return Birthday(value)
         }
