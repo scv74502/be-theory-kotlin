@@ -26,7 +26,7 @@ class UserService(
     fun signUp(command: UserSignUpCommand): UserModel {
         return try {
             if (userRepository.existsByLoginId(command.loginId)) {
-                throwDuplicateLoginIdConflict()
+                throwDuplicateLoginIdConflict(DuplicateLoginIdException(command.loginId))
             }
             val birthday = Birthday.of(command.birthday)
             val password = Password.of(command.rawPassword, birthday, passwordEncoder)
@@ -39,8 +39,8 @@ class UserService(
             )
             try {
                 userRepository.save(user)
-            } catch (_: DuplicateLoginIdException) {
-                throwDuplicateLoginIdConflict()
+            } catch (e: DuplicateLoginIdException) {
+                throwDuplicateLoginIdConflict(e)
             }
         } catch (e: UserDomainException) {
             throw CoreException(ErrorType.BAD_REQUEST, e.message, e)
@@ -74,8 +74,8 @@ class UserService(
         }
     }
 
-    private fun throwDuplicateLoginIdConflict(): Nothing {
-        throw CoreException(ErrorType.CONFLICT, DUPLICATE_LOGIN_ID_MESSAGE)
+    private fun throwDuplicateLoginIdConflict(cause: DuplicateLoginIdException): Nothing {
+        throw CoreException(ErrorType.CONFLICT, DUPLICATE_LOGIN_ID_MESSAGE, cause)
     }
 
     private fun throwUnauthorized(): Nothing {
