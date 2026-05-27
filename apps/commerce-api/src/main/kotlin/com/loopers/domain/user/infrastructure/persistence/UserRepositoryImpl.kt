@@ -16,8 +16,11 @@ class UserRepositoryImpl(
     override fun save(user: UserModel): UserModel =
         try {
             userJpaRepository.saveAndFlush(UserJpaEntity.fromDomain(user)).toDomain()
-        } catch (_: DataIntegrityViolationException) {
-            throw DuplicateLoginIdException(user.loginId.value)
+        } catch (e: DataIntegrityViolationException) {
+            if (e.isLoginIdUniqueConstraintViolation()) {
+                throw DuplicateLoginIdException(user.loginId.value, e)
+            }
+            throw e
         }
 
     override fun findByLoginId(loginId: String): UserModel? = userJpaRepository.findByLoginId(loginId)?.toDomain()
@@ -27,4 +30,9 @@ class UserRepositoryImpl(
     override fun updatePassword(id: Long, password: Password) {
         userJpaRepository.findById(id).orElseThrow().encodedPassword = password.encoded
     }
+
+    private fun DataIntegrityViolationException.isLoginIdUniqueConstraintViolation(): Boolean =
+        generateSequence(this as Throwable?) { it.cause }
+            .mapNotNull { it.message }
+            .any { it.contains(USER_LOGIN_ID_UNIQUE_CONSTRAINT, ignoreCase = true) }
 }
