@@ -86,8 +86,9 @@ class UserVoValidationTest {
 
     @Test
     fun `비밀번호는_8자와_16자_경계값이면_생성된다`() {
-        assertThat(비밀번호_생성(rawPassword = "Abcde1!@").encoded).isEqualTo("ENC(Abcde1!@)")
-        assertThat(비밀번호_생성(rawPassword = "AbcdefghijklmN1!").encoded).isEqualTo("ENC(AbcdefghijklmN1!)")
+        assertThat(비밀번호_생성(rawPassword = "Abcde1!@").encodedForPersistence()).isEqualTo("ENC(Abcde1!@)")
+        assertThat(비밀번호_생성(rawPassword = "AbcdefghijklmN1!").encodedForPersistence())
+            .isEqualTo("ENC(AbcdefghijklmN1!)")
     }
 
     @Test

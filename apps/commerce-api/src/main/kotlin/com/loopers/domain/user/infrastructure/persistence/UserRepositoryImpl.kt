@@ -28,7 +28,7 @@ class UserRepositoryImpl(
     override fun findByIdForUpdate(id: Long): UserModel? = userJpaRepository.findByIdForUpdate(id)?.toDomain()
 
     override fun updatePassword(id: Long, password: Password) {
-        userJpaRepository.findById(id).orElseThrow().encodedPassword = password.encoded
+        userJpaRepository.findById(id).orElseThrow().encodedPassword = password.encodedForPersistence()
     }
 
     private fun DataIntegrityViolationException.isLoginIdUniqueConstraintViolation(): Boolean =

@@ -50,7 +50,7 @@ class UserService(
     @Transactional(readOnly = true)
     fun getMe(loginId: String, rawPassword: String): UserModel {
         val user = userRepository.findByLoginId(loginId) ?: throwUnauthorized()
-        if (!passwordEncoder.matches(rawPassword, user.password.encoded)) {
+        if (!user.password.matches(rawPassword, passwordEncoder)) {
             throwUnauthorized()
         }
         return user
@@ -59,10 +59,10 @@ class UserService(
     @Transactional
     fun changePassword(command: UserChangePasswordCommand) {
         val user = userRepository.findByIdForUpdate(command.userId) ?: throwUnauthorized()
-        if (!passwordEncoder.matches(command.currentRawPassword, user.password.encoded)) {
+        if (!user.password.matches(command.currentRawPassword, passwordEncoder)) {
             throwUnauthorized()
         }
-        if (passwordEncoder.matches(command.newRawPassword, user.password.encoded)) {
+        if (user.password.matches(command.newRawPassword, passwordEncoder)) {
             throw CoreException(ErrorType.BAD_REQUEST, SAME_PASSWORD_MESSAGE)
         }
 

@@ -49,7 +49,7 @@ class UserJpaEntity(
     companion object {
         fun fromDomain(user: UserModel): UserJpaEntity = UserJpaEntity(
             loginId = user.loginId.value,
-            encodedPassword = user.password.encoded,
+            encodedPassword = user.password.encodedForPersistence(),
             name = user.name.value,
             birthday = user.birthday.value,
             email = user.email.value,
