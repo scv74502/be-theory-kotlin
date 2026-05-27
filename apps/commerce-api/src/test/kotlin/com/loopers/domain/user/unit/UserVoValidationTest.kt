@@ -53,9 +53,17 @@ class UserVoValidationTest {
     }
 
     @Test
-    fun `생년월일은_오늘이거나_미래_일자면_생성이_불가하다`() {
-        assertThrows<InvalidUserException> { Birthday.of(LocalDate.now()) }
-        assertThrows<InvalidUserException> { Birthday.of(LocalDate.now().plusDays(1)) }
+    fun `생년월일은_오늘이면_생성이_불가하다`() {
+        val ex = assertThrows<InvalidUserException> { Birthday.of(LocalDate.now()) }
+
+        assertThat(ex.message).isEqualTo("생년월일은 과거 일자여야 합니다.")
+    }
+
+    @Test
+    fun `생년월일은_미래_일자면_생성이_불가하다`() {
+        val ex = assertThrows<InvalidUserException> { Birthday.of(LocalDate.now().plusDays(1)) }
+
+        assertThat(ex.message).isEqualTo("생년월일은 과거 일자여야 합니다.")
     }
 
     @Test
