@@ -108,6 +108,28 @@ class UserApiE2ETest
         }
 
         @Test
+        fun `로그인ID_헤더가_blank면_401_UNAUTHORIZED를_반환한다`() {
+            userService.signUp(사용자_회원가입())
+
+            listOf("", "   ").forEach { blankLoginId ->
+                val response = getMe(authHeaders(loginId = blankLoginId))
+
+                assertThat(response.statusCode).isEqualTo(HttpStatus.UNAUTHORIZED)
+            }
+        }
+
+        @Test
+        fun `비밀번호_헤더가_blank면_401_UNAUTHORIZED를_반환한다`() {
+            userService.signUp(사용자_회원가입())
+
+            listOf("", "   ").forEach { blankPassword ->
+                val response = getMe(authHeaders(password = blankPassword))
+
+                assertThat(response.statusCode).isEqualTo(HttpStatus.UNAUTHORIZED)
+            }
+        }
+
+        @Test
         fun `존재하지_않는_사용자면_401_UNAUTHORIZED를_반환한다`() {
             val response = getMe(authHeaders(loginId = "missingUser"))
 
