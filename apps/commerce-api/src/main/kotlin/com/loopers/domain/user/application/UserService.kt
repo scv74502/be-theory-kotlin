@@ -43,7 +43,7 @@ class UserService(
                 throwDuplicateLoginIdConflict()
             }
         } catch (e: UserDomainException) {
-            throw CoreException(ErrorType.BAD_REQUEST, e.message)
+            throw CoreException(ErrorType.BAD_REQUEST, e.message, e)
         }
     }
 
@@ -70,7 +70,7 @@ class UserService(
             val password = Password.of(command.newRawPassword, user.birthday, passwordEncoder)
             userRepository.updatePassword(user.id, password)
         } catch (e: UserDomainException) {
-            throw CoreException(ErrorType.BAD_REQUEST, e.message)
+            throw CoreException(ErrorType.BAD_REQUEST, e.message, e)
         }
     }
 
