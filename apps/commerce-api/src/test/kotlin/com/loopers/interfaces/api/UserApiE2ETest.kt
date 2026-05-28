@@ -166,6 +166,15 @@ class UserApiE2ETest
         }
 
         @Test
+        fun `새_비밀번호가_현재_비밀번호와_같으면_400_BAD_REQUEST를_반환한다`() {
+            userService.signUp(사용자_회원가입())
+
+            val response = changePassword(authHeaders(), 기본_비밀번호)
+
+            assertThat(response.statusCode).isEqualTo(HttpStatus.BAD_REQUEST)
+        }
+
+        @Test
         fun `이름이_한_글자면_별표만_반환한다`() {
             userService.signUp(
                 사용자_회원가입(
