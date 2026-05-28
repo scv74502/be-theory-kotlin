@@ -63,6 +63,15 @@ def toml_literal(value: str) -> str:
     return f"'''\n{value}\n'''"
 
 
+def toml_basic_string(value: str) -> str:
+    escaped = (
+        value.replace("\\", "\\\\")
+        .replace('"', '\\"')
+        .replace("\n", "\\n")
+    )
+    return f'"{escaped}"'
+
+
 def normalize_for_codex(body: str, agent_name: str, source_name: str) -> str:
     memory_root = f"{REPO_ROOT}/.codex/agent-memory/"
     body = MEMORY_PATH_RE.sub(lambda match: f"{memory_root}{match.group(1)}/", body)
@@ -100,6 +109,7 @@ def render_agent(source_path: Path) -> tuple[str, str]:
         [
             f"# Generated from .claude/agents/{source_path.name}.",
             "# Edit the Claude source file, then run `.codex/sync-from-claude.py`.",
+            f"name = {toml_basic_string(agent_name)}",
             f"description = {toml_literal(description)}",
             f"developer_instructions = {toml_literal(normalized_body)}",
             "",
