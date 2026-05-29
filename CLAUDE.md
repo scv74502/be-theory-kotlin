@@ -85,5 +85,6 @@ make init                                   # 최초 1회: ktlint pre-commit hoo
 3. **`agent_rules/testing-conventions.md` - 테스트 파일 분류, 테스트 네이밍, Steps 패턴, API 테스트 작성 기준**
 4. **`agent_rules/vcs_rule.md` - 이전 PR 리뷰 수정, CodeRabbit/Copilot/사람 리뷰 대응, CI 픽스, 커밋/브랜치/worktree/GitHub Issue/PR 작업 기준**
 5. **`docs/design/01-requirements.md` ~ `04-erd.md` - 도메인 용어(유비쿼터스 언어), 요구사항, 시퀀스/클래스/ERD 의 SoT. 코드보다 우선하며 도메인 작업 시 agent_rules 와 함께 필수 선행 참조한다. 본 문서는 작업·아키텍처 지침이 아니라 도메인 사실(fact) 의 원천이다.**
+6. **`docs/quest-per-week/` - 개발 주차별 브랜치 달성목표와 체크리스트. 현재 브랜치의 진행 상태를 평가하거나 다음 작업 범위를 정할 때 해당 주차 문서를 `agent_rules/vcs_rule.md` 와 함께 선행 참조한다.**
 사용자 동의 구한 후 새로운 구현체나 요구사항 변경 등 갱신 필요시 업데이트.
 단 변경 전 사용자 명시적 동의 획득해야 함

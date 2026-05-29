@@ -9,7 +9,8 @@
 - 이 문서는 중복 규칙을 담지 않고 `CLAUDE.md`, `agent_rules/`, `docs/design/` 로 라우팅한다.
 - `CLAUDE.md` 는 기본 행동 지침과 문서 목록의 원천으로 유지한다.
 - `docs/design/` 은 도메인 사실의 SoT 이며, 구현·테스트·아키텍처 판단 전 관련 파일을 함께 확인한다.
-- `CLAUDE.md`, `agent_rules/`, `docs/design/` 와 코드가 충돌하면 임의로 선택하지 말고 사용자 확인을 받는다.
+- `docs/quest-per-week/` 는 개발 주차별 브랜치 달성목표와 체크리스트가 있는 곳이며, 현재 브랜치 작업상태 평가 전 함께 확인한다.
+- `CLAUDE.md`, `agent_rules/`, `docs/design/`, `docs/quest-per-week/` 와 코드가 충돌하면 임의로 선택하지 말고 사용자 확인을 받는다.
 
 ## 멀티에이전트 설정
 
@@ -36,6 +37,7 @@
 | 테스트 전략, TDD 흐름, 테스트 종류, 픽스처, 모킹 정책 | `agent_rules/groundRules.md` |
 | 테스트 파일 분류, 테스트 네이밍, Steps 패턴, API 테스트 기준 | `agent_rules/testing-conventions.md` |
 | 이전 PR 리뷰 수정, CodeRabbit/Copilot 리뷰 대응, CI 픽스, 커밋/브랜치/worktree 규칙 | `agent_rules/vcs_rule.md` |
+| 개발 주차별 브랜치 달성목표 확인, 현재 작업상태 평가 | `docs/quest-per-week/` 의 해당 주차 문서, `agent_rules/vcs_rule.md` |
 | 문서와 구현이 충돌하거나 요구사항 갱신이 필요한 경우 | 사용자 확인 후 관련 `agent_rules/` 문서 |
 
 ## 작업 순서
