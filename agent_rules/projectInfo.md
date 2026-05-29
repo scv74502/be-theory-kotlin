@@ -57,6 +57,8 @@ loopers-kotlin-spring-template/
 
 사용자 기능은 기능 단위 응집을 우선해 `com.loopers.domain.user` 아래에 둔다.
 
+패키지 배치는 도메인 우선(package-by-feature)을 따른다. 전역 웹 인프라(`interfaces/api`)와 횡단 관심사(`support/`)만 루트에 두고, 그 외 도메인 코드는 `domain/<aggregate>/` 아래 응집한다. 레이어를 최상위에 두는 layer-first 배치는 사용하지 않는다. 상세 규칙은 `agent_rules/groundRules.md` "아키텍처, 패키지 구성 전략" 을 따른다.
+
 ```
 domain/user/
 ├── application/            # 유스케이스, command/info DTO, facade
