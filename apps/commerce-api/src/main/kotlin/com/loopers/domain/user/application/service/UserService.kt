@@ -48,6 +48,10 @@ class UserService(
     }
 
     @Transactional(readOnly = true)
+    fun findById(userId: Long): UserModel =
+        userRepository.findById(userId) ?: throw CoreException(ErrorType.NOT_FOUND)
+
+    @Transactional(readOnly = true)
     fun getMe(loginId: String, rawPassword: String): UserModel {
         val user = userRepository.findByLoginId(loginId) ?: throwUnauthorized()
         if (!user.password.matches(rawPassword, passwordEncoder)) {

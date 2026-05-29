@@ -223,6 +223,8 @@ class UserServiceIntegrationTest
 
             override fun save(user: UserModel): UserModel = delegate.save(user)
 
+            override fun findById(id: Long): UserModel? = delegate.findById(id)
+
             override fun findByLoginId(loginId: String): UserModel? = delegate.findByLoginId(loginId)
 
             override fun findByIdForUpdate(id: Long): UserModel? = delegate.findByIdForUpdate(id)

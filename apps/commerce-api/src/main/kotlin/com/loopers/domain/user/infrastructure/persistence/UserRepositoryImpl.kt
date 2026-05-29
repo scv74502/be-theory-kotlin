@@ -23,6 +23,8 @@ class UserRepositoryImpl(
             throw e
         }
 
+    override fun findById(id: Long): UserModel? = userJpaRepository.findById(id).map { it.toDomain() }.orElse(null)
+
     override fun findByLoginId(loginId: String): UserModel? = userJpaRepository.findByLoginId(loginId)?.toDomain()
 
     override fun findByIdForUpdate(id: Long): UserModel? = userJpaRepository.findByIdForUpdate(id)?.toDomain()
