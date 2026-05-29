@@ -61,7 +61,11 @@ loopers-kotlin-spring-template/
 
 ```
 domain/user/
-├── application/            # 유스케이스, command/info DTO, facade
+├── application/            # 유스케이스 계층
+│   ├── UserFacade          # 도메인 조합 (application 직하)
+│   ├── service/            # UserService
+│   ├── info/               # UserInfo
+│   └── command/            # UserSignUpCommand, UserChangePasswordCommand
 ├── infrastructure/
 │   └── persistence/         # JPA Entity, Spring Data Repository, port 구현체
 ├── presentation/            # Controller, API spec, request/response DTO
