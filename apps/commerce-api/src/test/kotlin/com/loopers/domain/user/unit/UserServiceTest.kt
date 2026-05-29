@@ -1,6 +1,6 @@
 package com.loopers.domain.user.unit
 
-import com.loopers.domain.user.application.UserService
+import com.loopers.domain.user.application.service.UserService
 import com.loopers.domain.user.application.command.UserChangePasswordCommand
 import com.loopers.domain.user.exception.InvalidPasswordException
 import com.loopers.domain.user.port.PasswordEncoder

@@ -1,7 +1,7 @@
 package com.loopers.domain.user.presentation.auth
 
 import com.loopers.domain.user.application.UserFacade
-import com.loopers.domain.user.application.UserInfo
+import com.loopers.domain.user.application.info.UserInfo
 import com.loopers.support.error.CoreException
 import com.loopers.support.error.ErrorType
 import jakarta.servlet.http.HttpServletRequest

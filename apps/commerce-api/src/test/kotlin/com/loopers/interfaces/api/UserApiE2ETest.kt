@@ -1,7 +1,7 @@
 package com.loopers.interfaces.api
 
 import com.loopers.ApiTest
-import com.loopers.domain.user.application.UserService
+import com.loopers.domain.user.application.service.UserService
 import com.loopers.domain.user.presentation.response.MyUserResponse
 import com.loopers.domain.user.presentation.response.SignUpResponse
 import com.loopers.domain.user.support.UserSteps.Companion.기본_로그인_ID

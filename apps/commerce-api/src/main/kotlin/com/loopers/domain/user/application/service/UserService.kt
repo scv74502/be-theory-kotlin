@@ -1,4 +1,4 @@
-package com.loopers.domain.user.application
+package com.loopers.domain.user.application.service
 
 import com.loopers.domain.user.application.command.UserChangePasswordCommand
 import com.loopers.domain.user.application.command.UserSignUpCommand

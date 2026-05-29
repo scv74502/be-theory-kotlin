@@ -1,6 +1,6 @@
 package com.loopers.domain.user.integration
 
-import com.loopers.domain.user.application.UserService
+import com.loopers.domain.user.application.service.UserService
 import com.loopers.domain.user.application.command.UserChangePasswordCommand
 import com.loopers.domain.user.exception.DuplicateLoginIdException
 import com.loopers.domain.user.infrastructure.persistence.UserJpaRepository
