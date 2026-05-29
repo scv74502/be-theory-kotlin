@@ -44,10 +44,12 @@ class ProductSteps {
             brandId: Long = 기본_브랜드_ID,
             name: String = 기본_상품명,
             price: Long = 기본_가격,
+            initialStock: Long = 기본_재고,
         ): ProductRegisterCommand = ProductRegisterCommand(
             brandId = brandId,
             name = name,
             price = price,
+            initialStock = initialStock,
         )
 
         fun 상품_수정_커맨드(
