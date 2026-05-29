@@ -71,8 +71,30 @@ class ProductServiceIntegrationTest
             val deleted = productService.register(상품_등록_커맨드(name = "삭제 상품", price = 3_000))
             productService.softDelete(deleted.id)
 
-            val products = productService.findProducts(ProductSearchCommand(brandId = 10L))
+            val products = productService.findProducts(ProductSearchCommand.of(brandId = 10L))
 
             assertThat(products.map { it.id }).containsExactly(second.id, first.id)
+        }
+
+        @Test
+        fun `상품_목록은_가격_낮은순으로_조회할_수_있다`() {
+            val expensive = productService.register(상품_등록_커맨드(name = "비싼 상품", price = 3_000))
+            val cheap = productService.register(상품_등록_커맨드(name = "싼 상품", price = 1_000))
+            val middle = productService.register(상품_등록_커맨드(name = "중간 상품", price = 2_000))
+
+            val products = productService.findProducts(ProductSearchCommand.of(brandId = 10L, sort = "price_asc"))
+
+            assertThat(products.map { it.id }).containsExactly(cheap.id, middle.id, expensive.id)
+        }
+
+        @Test
+        fun `상품_목록은_페이지_조건을_적용한다`() {
+            val first = productService.register(상품_등록_커맨드(name = "첫 상품", price = 1_000))
+            productService.register(상품_등록_커맨드(name = "둘째 상품", price = 2_000))
+            productService.register(상품_등록_커맨드(name = "셋째 상품", price = 3_000))
+
+            val products = productService.findProducts(ProductSearchCommand.of(brandId = 10L, page = 1, size = 2))
+
+            assertThat(products.map { it.id }).containsExactly(first.id)
         }
     }

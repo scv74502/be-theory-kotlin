@@ -73,6 +73,35 @@ class ProductApiE2ETest
         }
 
         @Test
+        fun `상품_목록은_가격_낮은순과_페이지_조건을_적용한다`() {
+            productService.register(상품_등록_커맨드(brandId = 10L, name = "비싼 상품", price = 3_000))
+            val cheap = productService.register(상품_등록_커맨드(brandId = 10L, name = "싼 상품", price = 1_000))
+            productService.register(상품_등록_커맨드(brandId = 10L, name = "중간 상품", price = 2_000))
+
+            val response = testRestTemplate.exchange(
+                "$ENDPOINT?brandId=10&sort=price_asc&page=0&size=1",
+                HttpMethod.GET,
+                HttpEntity<Any>(Unit),
+                productListResponseType,
+            )
+
+            assertThat(response.statusCode).isEqualTo(HttpStatus.OK)
+            assertThat(response.body?.data?.map { it.id }).containsExactly(cheap.id)
+        }
+
+        @Test
+        fun `지원하지_않는_상품_정렬조건이면_400_BAD_REQUEST를_반환한다`() {
+            val response = testRestTemplate.exchange(
+                "$ENDPOINT?sort=unknown",
+                HttpMethod.GET,
+                HttpEntity<Any>(Unit),
+                productListResponseType,
+            )
+
+            assertThat(response.statusCode).isEqualTo(HttpStatus.BAD_REQUEST)
+        }
+
+        @Test
         fun `삭제된_상품은_상세_조회에서_404_NOT_FOUND를_반환한다`() {
             val product = productService.register(상품_등록_커맨드())
             productService.softDelete(product.id)

@@ -9,9 +9,14 @@ import io.swagger.v3.oas.annotations.tags.Tag
 interface ProductApiSpec {
     @Operation(
         summary = "상품 목록 조회",
-        description = "상품 목록을 최신순으로 조회합니다.",
+        description = "상품 목록을 조건에 맞게 조회합니다.",
     )
-    fun findProducts(brandId: Long?): ApiResponse<List<ProductResponse>>
+    fun findProducts(
+        brandId: Long?,
+        sort: String?,
+        page: Int?,
+        size: Int?,
+    ): ApiResponse<List<ProductResponse>>
 
     @Operation(
         summary = "상품 상세 조회",

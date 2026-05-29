@@ -8,5 +8,5 @@ interface ProductRepository {
     fun findById(productId: Long): ProductModel?
     fun findAllByIds(productIds: Collection<Long>): List<ProductModel>
     fun findByBrandId(brandId: Long): List<ProductModel>
-    fun findLatest(brandId: Long?): List<ProductModel>
+    fun findByCondition(condition: ProductSearchCondition): List<ProductModel>
 }

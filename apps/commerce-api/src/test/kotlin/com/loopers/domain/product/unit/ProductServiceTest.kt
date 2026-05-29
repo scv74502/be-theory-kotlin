@@ -1,6 +1,7 @@
 package com.loopers.domain.product.unit
 
 import com.loopers.domain.product.application.service.ProductService
+import com.loopers.domain.product.application.command.ProductSearchCommand
 import com.loopers.domain.product.model.ProductModel
 import com.loopers.domain.product.port.ProductRepository
 import com.loopers.domain.product.support.ProductSteps.Companion.기본_상품_ID
@@ -116,5 +117,18 @@ class ProductServiceTest {
         assertThat(deletedProducts).hasSize(2)
         assertThat(deletedProducts).allMatch { it.deletedAtOrNull != null }
         verify(exactly = 1) { productRepository.saveAll(any()) }
+    }
+
+    @Test
+    fun `좋아요순_정렬은_Like_도메인_구현_전까지_지원하지_않는다`() {
+        val productRepository = mockk<ProductRepository>()
+        val productService = ProductService(productRepository)
+
+        val ex = assertThrows<CoreException> {
+            productService.findProducts(ProductSearchCommand.of(sort = "likes_desc"))
+        }
+
+        assertThat(ex.errorType).isEqualTo(ErrorType.BAD_REQUEST)
+        verify(exactly = 0) { productRepository.findByCondition(any()) }
     }
 }

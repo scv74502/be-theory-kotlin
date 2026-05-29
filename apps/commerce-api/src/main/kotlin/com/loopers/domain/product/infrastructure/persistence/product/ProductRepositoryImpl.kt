@@ -2,6 +2,10 @@ package com.loopers.domain.product.infrastructure.persistence.product
 
 import com.loopers.domain.product.model.ProductModel
 import com.loopers.domain.product.port.ProductRepository
+import com.loopers.domain.product.port.ProductSearchCondition
+import com.loopers.domain.product.vo.ProductSort
+import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Component
 
 @Component
@@ -29,6 +33,24 @@ class ProductRepositoryImpl(
     override fun findByBrandId(brandId: Long): List<ProductModel> =
         productJpaRepository.findByBrandId(brandId).map { it.toDomain() }
 
-    override fun findLatest(brandId: Long?): List<ProductModel> =
-        productJpaRepository.findLatest(brandId).map { it.toDomain() }
+    override fun findByCondition(condition: ProductSearchCondition): List<ProductModel> {
+        val pageable = PageRequest.of(
+            condition.page,
+            condition.size,
+            condition.sort.toJpaSort(),
+        )
+        return productJpaRepository.findActiveProducts(
+            brandId = condition.brandId,
+            pageable = pageable,
+        ).map { it.toDomain() }
+    }
+
+    private fun ProductSort.toJpaSort(): Sort =
+        when (this) {
+            ProductSort.LATEST -> Sort.by(Sort.Direction.DESC, "createdAt")
+                .and(Sort.by(Sort.Direction.DESC, "id"))
+            ProductSort.PRICE_ASC -> Sort.by(Sort.Direction.ASC, "price")
+                .and(Sort.by(Sort.Direction.DESC, "id"))
+            ProductSort.LIKES_DESC -> throw IllegalArgumentException("좋아요순 정렬은 지원하지 않습니다.")
+        }
 }

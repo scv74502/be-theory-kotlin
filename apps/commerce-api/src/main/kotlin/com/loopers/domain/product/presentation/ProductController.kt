@@ -18,8 +18,18 @@ class ProductController(
     @GetMapping
     override fun findProducts(
         @RequestParam(required = false) brandId: Long?,
+        @RequestParam(required = false) sort: String?,
+        @RequestParam(required = false) page: Int?,
+        @RequestParam(required = false) size: Int?,
     ): ApiResponse<List<ProductResponse>> {
-        return productFacade.findProducts(ProductSearchCommand(brandId = brandId))
+        return productFacade.findProducts(
+            ProductSearchCommand.of(
+                brandId = brandId,
+                sort = sort,
+                page = page,
+                size = size,
+            ),
+        )
             .map { ProductResponse.from(it) }
             .let { ApiResponse.success(it) }
     }
