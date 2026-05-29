@@ -19,6 +19,12 @@ interface ProductJpaRepository : JpaRepository<ProductJpaEntity, Long> {
         from ProductJpaEntity p
         where p.deletedAt is null
           and (:brandId is null or p.brandId = :brandId)
+          and exists (
+              select b.id
+              from BrandJpaEntity b
+              where b.id = p.brandId
+                and b.deletedAt is null
+          )
         """,
     )
     fun findActiveProducts(

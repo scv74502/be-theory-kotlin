@@ -120,15 +120,22 @@ class ProductServiceTest {
     }
 
     @Test
-    fun `좋아요순_정렬은_Like_도메인_구현_전까지_지원하지_않는다`() {
+    fun `상품_서비스는_좋아요순_정렬조건을_저장소에_전달한다`() {
         val productRepository = mockk<ProductRepository>()
         val productService = ProductService(productRepository)
+        val command = ProductSearchCommand.of(sort = "likes_desc")
+        val products = listOf(상품_도메인_생성(id = 기본_상품_ID))
+        every { productRepository.findByCondition(any()) } returns products
 
-        val ex = assertThrows<CoreException> {
-            productService.findProducts(ProductSearchCommand.of(sort = "likes_desc"))
+        val result = productService.findProducts(command)
+
+        assertThat(result).isEqualTo(products)
+        verify(exactly = 1) {
+            productRepository.findByCondition(
+                withArg {
+                    assertThat(it.sort).isEqualTo(command.sort)
+                },
+            )
         }
-
-        assertThat(ex.errorType).isEqualTo(ErrorType.BAD_REQUEST)
-        verify(exactly = 0) { productRepository.findByCondition(any()) }
     }
 }

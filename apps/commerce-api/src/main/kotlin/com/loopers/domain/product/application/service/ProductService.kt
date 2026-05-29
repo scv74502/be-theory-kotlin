@@ -11,7 +11,6 @@ import com.loopers.domain.product.port.ProductRepository
 import com.loopers.domain.product.port.ProductSearchCondition
 import com.loopers.domain.product.vo.Money
 import com.loopers.domain.product.vo.ProductName
-import com.loopers.domain.product.vo.ProductSort
 import com.loopers.support.error.CoreException
 import com.loopers.support.error.ErrorType
 import org.springframework.stereotype.Component
@@ -94,9 +93,6 @@ class ProductService(
 
     @Transactional(readOnly = true)
     fun findProducts(command: ProductSearchCommand): List<ProductModel> {
-        if (command.sort == ProductSort.LIKES_DESC) {
-            throw CoreException(ErrorType.BAD_REQUEST, "좋아요순 정렬은 Like 도메인 구현 후 지원합니다.")
-        }
         return productRepository.findByCondition(
             ProductSearchCondition(
                 brandId = command.brandId,

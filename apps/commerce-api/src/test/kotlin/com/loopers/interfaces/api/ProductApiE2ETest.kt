@@ -3,6 +3,7 @@ package com.loopers.interfaces.api
 import com.loopers.ApiTest
 import com.loopers.domain.brand.application.service.BrandService
 import com.loopers.domain.brand.support.BrandSteps.Companion.브랜드_등록_커맨드
+import com.loopers.domain.like.application.service.LikeService
 import com.loopers.domain.product.application.service.ProductService
 import com.loopers.domain.product.presentation.response.ProductResponse
 import com.loopers.domain.product.support.ProductSteps.Companion.상품_등록_커맨드
@@ -18,6 +19,7 @@ class ProductApiE2ETest
     @Autowired
     constructor(
         private val brandService: BrandService,
+        private val likeService: LikeService,
         private val productService: ProductService,
     ) : ApiTest() {
         companion object {
@@ -33,6 +35,8 @@ class ProductApiE2ETest
         fun `존재하는_상품_ID면_상품_상세를_반환한다`() {
             val brand = brandService.register(브랜드_등록_커맨드())
             val product = productService.register(상품_등록_커맨드(brandId = brand.id))
+            likeService.like(userId = 1L, productId = product.id)
+            likeService.like(userId = 2L, productId = product.id)
 
             val response = testRestTemplate.exchange(
                 "$ENDPOINT/${product.id}",
@@ -46,6 +50,7 @@ class ProductApiE2ETest
             assertThat(response.body?.data?.name).isEqualTo("기본 상품")
             assertThat(response.body?.data?.price).isEqualTo(10_000)
             assertThat(response.body?.data?.brandName).isEqualTo("기본 브랜드")
+            assertThat(response.body?.data?.likeCount).isEqualTo(2L)
         }
 
         @Test
@@ -77,6 +82,7 @@ class ProductApiE2ETest
 
             assertThat(response.statusCode).isEqualTo(HttpStatus.OK)
             assertThat(response.body?.data?.map { it.id }).containsExactly(second.id, first.id)
+            assertThat(response.body?.data?.map { it.brandName }).containsExactly("기본 브랜드", "기본 브랜드")
         }
 
         @Test
@@ -95,6 +101,33 @@ class ProductApiE2ETest
 
             assertThat(response.statusCode).isEqualTo(HttpStatus.OK)
             assertThat(response.body?.data?.map { it.id }).containsExactly(cheap.id)
+            assertThat(response.body?.data?.map { it.brandName }).containsExactly("기본 브랜드")
+        }
+
+        @Test
+        fun `상품_목록은_좋아요_많은순으로_조회할_수_있다`() {
+            val brand = brandService.register(브랜드_등록_커맨드())
+            val low = productService.register(상품_등록_커맨드(brandId = brand.id, name = "낮은 상품", price = 1_000))
+            val high = productService.register(상품_등록_커맨드(brandId = brand.id, name = "높은 상품", price = 2_000))
+            val middle = productService.register(상품_등록_커맨드(brandId = brand.id, name = "중간 상품", price = 3_000))
+            likeService.like(userId = 1L, productId = low.id)
+            likeService.like(userId = 1L, productId = high.id)
+            likeService.like(userId = 2L, productId = high.id)
+            likeService.like(userId = 3L, productId = high.id)
+            likeService.like(userId = 1L, productId = middle.id)
+            likeService.like(userId = 2L, productId = middle.id)
+
+            val response = testRestTemplate.exchange(
+                "$ENDPOINT?brandId=${brand.id}&sort=likes_desc&page=0&size=2",
+                HttpMethod.GET,
+                HttpEntity<Any>(Unit),
+                productListResponseType,
+            )
+
+            assertThat(response.statusCode).isEqualTo(HttpStatus.OK)
+            assertThat(response.body?.data?.map { it.id }).containsExactly(high.id, middle.id)
+            assertThat(response.body?.data?.map { it.brandName }).containsExactly("기본 브랜드", "기본 브랜드")
+            assertThat(response.body?.data?.map { it.likeCount }).containsExactly(3L, 2L)
         }
 
         @Test

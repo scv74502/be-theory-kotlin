@@ -47,4 +47,34 @@ class BrandServiceTest {
 
         assertThat(ex.errorType).isEqualTo(ErrorType.NOT_FOUND)
     }
+
+    @Test
+    fun `브랜드_ID_목록으로_활성_브랜드들을_조회한다`() {
+        val brandRepository = mockk<BrandRepository>()
+        val brandService = BrandService(brandRepository)
+        every { brandRepository.findAllByIds(setOf(1L, 2L)) } returns listOf(
+            브랜드_도메인_생성(id = 1L, name = "첫 브랜드"),
+            브랜드_도메인_생성(id = 2L, name = "둘째 브랜드"),
+        )
+
+        val brands = brandService.findByIds(setOf(1L, 2L))
+
+        assertThat(brands.map { it.id }).containsExactly(1L, 2L)
+        assertThat(brands.map { it.name.value }).containsExactly("첫 브랜드", "둘째 브랜드")
+    }
+
+    @Test
+    fun `브랜드_ID_목록에_존재하지_않는_ID가_있으면_NOT_FOUND가_발생한다`() {
+        val brandRepository = mockk<BrandRepository>()
+        val brandService = BrandService(brandRepository)
+        every { brandRepository.findAllByIds(setOf(1L, 2L)) } returns listOf(
+            브랜드_도메인_생성(id = 1L),
+        )
+
+        val ex = assertThrows<CoreException> {
+            brandService.findByIds(setOf(1L, 2L))
+        }
+
+        assertThat(ex.errorType).isEqualTo(ErrorType.NOT_FOUND)
+    }
 }

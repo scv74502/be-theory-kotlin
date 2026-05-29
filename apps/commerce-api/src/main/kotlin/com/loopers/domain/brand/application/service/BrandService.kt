@@ -60,6 +60,23 @@ class BrandService(
         return brand
     }
 
+    @Transactional(readOnly = true)
+    fun findByIds(brandIds: Set<Long>): List<BrandModel> {
+        if (brandIds.isEmpty()) {
+            return emptyList()
+        }
+        val brands = brandRepository.findAllByIds(brandIds)
+        if (brands.size != brandIds.size) {
+            throwNotFound()
+        }
+        try {
+            brands.forEach { it.requireActive() }
+        } catch (e: BrandNotActiveException) {
+            throw CoreException(ErrorType.NOT_FOUND, e.message, e)
+        }
+        return brands
+    }
+
     private fun throwNotFound(): Nothing {
         throw CoreException(ErrorType.NOT_FOUND)
     }

@@ -8,6 +8,7 @@ data class ProductResponse(
     val id: Long,
     val brandId: Long,
     val brandName: String? = null,
+    val likeCount: Long = 0,
     val name: String,
     val price: Long,
 ) {
@@ -23,6 +24,7 @@ data class ProductResponse(
             id = info.id,
             brandId = info.brandId,
             brandName = info.brandName,
+            likeCount = info.likeCount,
             name = info.name,
             price = info.price,
         )
@@ -30,6 +32,8 @@ data class ProductResponse(
         fun from(info: ProductSummaryInfo): ProductResponse = ProductResponse(
             id = info.id,
             brandId = info.brandId,
+            brandName = info.brandName,
+            likeCount = info.likeCount,
             name = info.name,
             price = info.price,
         )

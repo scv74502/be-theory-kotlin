@@ -20,4 +20,7 @@ class BrandRepositoryImpl(
 
     override fun findById(brandId: Long): BrandModel? =
         brandJpaRepository.findById(brandId).map { it.toDomain() }.orElse(null)
+
+    override fun findAllByIds(brandIds: Collection<Long>): List<BrandModel> =
+        brandJpaRepository.findAllById(brandIds).map { it.toDomain() }
 }
