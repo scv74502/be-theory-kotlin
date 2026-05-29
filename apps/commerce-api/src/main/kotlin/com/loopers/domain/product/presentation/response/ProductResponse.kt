@@ -7,6 +7,7 @@ import com.loopers.domain.product.application.info.ProductSummaryInfo
 data class ProductResponse(
     val id: Long,
     val brandId: Long,
+    val brandName: String? = null,
     val name: String,
     val price: Long,
 ) {
@@ -21,6 +22,7 @@ data class ProductResponse(
         fun from(info: ProductDetailInfo): ProductResponse = ProductResponse(
             id = info.id,
             brandId = info.brandId,
+            brandName = info.brandName,
             name = info.name,
             price = info.price,
         )

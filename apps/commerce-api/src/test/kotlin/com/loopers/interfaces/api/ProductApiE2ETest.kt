@@ -1,6 +1,8 @@
 package com.loopers.interfaces.api
 
 import com.loopers.ApiTest
+import com.loopers.domain.brand.application.service.BrandService
+import com.loopers.domain.brand.support.BrandSteps.Companion.브랜드_등록_커맨드
 import com.loopers.domain.product.application.service.ProductService
 import com.loopers.domain.product.presentation.response.ProductResponse
 import com.loopers.domain.product.support.ProductSteps.Companion.상품_등록_커맨드
@@ -15,6 +17,7 @@ import org.springframework.http.HttpStatus
 class ProductApiE2ETest
     @Autowired
     constructor(
+        private val brandService: BrandService,
         private val productService: ProductService,
     ) : ApiTest() {
         companion object {
@@ -28,7 +31,8 @@ class ProductApiE2ETest
 
         @Test
         fun `존재하는_상품_ID면_상품_상세를_반환한다`() {
-            val product = productService.register(상품_등록_커맨드())
+            val brand = brandService.register(브랜드_등록_커맨드())
+            val product = productService.register(상품_등록_커맨드(brandId = brand.id))
 
             val response = testRestTemplate.exchange(
                 "$ENDPOINT/${product.id}",
@@ -41,6 +45,7 @@ class ProductApiE2ETest
             assertThat(response.body?.data?.id).isEqualTo(product.id)
             assertThat(response.body?.data?.name).isEqualTo("기본 상품")
             assertThat(response.body?.data?.price).isEqualTo(10_000)
+            assertThat(response.body?.data?.brandName).isEqualTo("기본 브랜드")
         }
 
         @Test
@@ -57,12 +62,14 @@ class ProductApiE2ETest
 
         @Test
         fun `상품_목록은_브랜드로_필터링하고_최신순으로_반환한다`() {
-            productService.register(상품_등록_커맨드(brandId = 20L, name = "다른 브랜드 상품", price = 1_000))
-            val first = productService.register(상품_등록_커맨드(brandId = 10L, name = "첫 상품", price = 2_000))
-            val second = productService.register(상품_등록_커맨드(brandId = 10L, name = "둘째 상품", price = 3_000))
+            val targetBrand = brandService.register(브랜드_등록_커맨드())
+            val otherBrand = brandService.register(브랜드_등록_커맨드(name = "다른 브랜드"))
+            productService.register(상품_등록_커맨드(brandId = otherBrand.id, name = "다른 브랜드 상품", price = 1_000))
+            val first = productService.register(상품_등록_커맨드(brandId = targetBrand.id, name = "첫 상품", price = 2_000))
+            val second = productService.register(상품_등록_커맨드(brandId = targetBrand.id, name = "둘째 상품", price = 3_000))
 
             val response = testRestTemplate.exchange(
-                "$ENDPOINT?brandId=10",
+                "$ENDPOINT?brandId=${targetBrand.id}",
                 HttpMethod.GET,
                 HttpEntity<Any>(Unit),
                 productListResponseType,
@@ -74,12 +81,13 @@ class ProductApiE2ETest
 
         @Test
         fun `상품_목록은_가격_낮은순과_페이지_조건을_적용한다`() {
-            productService.register(상품_등록_커맨드(brandId = 10L, name = "비싼 상품", price = 3_000))
-            val cheap = productService.register(상품_등록_커맨드(brandId = 10L, name = "싼 상품", price = 1_000))
-            productService.register(상품_등록_커맨드(brandId = 10L, name = "중간 상품", price = 2_000))
+            val brand = brandService.register(브랜드_등록_커맨드())
+            productService.register(상품_등록_커맨드(brandId = brand.id, name = "비싼 상품", price = 3_000))
+            val cheap = productService.register(상품_등록_커맨드(brandId = brand.id, name = "싼 상품", price = 1_000))
+            productService.register(상품_등록_커맨드(brandId = brand.id, name = "중간 상품", price = 2_000))
 
             val response = testRestTemplate.exchange(
-                "$ENDPOINT?brandId=10&sort=price_asc&page=0&size=1",
+                "$ENDPOINT?brandId=${brand.id}&sort=price_asc&page=0&size=1",
                 HttpMethod.GET,
                 HttpEntity<Any>(Unit),
                 productListResponseType,
@@ -103,7 +111,8 @@ class ProductApiE2ETest
 
         @Test
         fun `삭제된_상품은_상세_조회에서_404_NOT_FOUND를_반환한다`() {
-            val product = productService.register(상품_등록_커맨드())
+            val brand = brandService.register(브랜드_등록_커맨드())
+            val product = productService.register(상품_등록_커맨드(brandId = brand.id))
             productService.softDelete(product.id)
 
             val response = testRestTemplate.exchange(

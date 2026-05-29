@@ -1,5 +1,7 @@
 package com.loopers.domain.product.integration
 
+import com.loopers.domain.brand.application.service.BrandService
+import com.loopers.domain.brand.support.BrandSteps.Companion.브랜드_등록_커맨드
 import com.loopers.domain.product.application.ProductFacade
 import com.loopers.domain.product.infrastructure.persistence.product.ProductJpaRepository
 import com.loopers.domain.product.infrastructure.persistence.stock.ProductStockJpaRepository
@@ -18,6 +20,7 @@ import org.springframework.boot.test.context.SpringBootTest
 class ProductFacadeIntegrationTest
     @Autowired
     constructor(
+        private val brandService: BrandService,
         private val productFacade: ProductFacade,
         private val productJpaRepository: ProductJpaRepository,
         private val productStockJpaRepository: ProductStockJpaRepository,
@@ -30,7 +33,14 @@ class ProductFacadeIntegrationTest
 
         @Test
         fun `상품_등록은_초기_재고를_함께_저장한다`() {
-            val product = productFacade.registerProduct(상품_등록_커맨드(initialStock = 15))
+            val brand = brandService.register(브랜드_등록_커맨드())
+
+            val product = productFacade.registerProduct(
+                상품_등록_커맨드(
+                    brandId = brand.id,
+                    initialStock = 15,
+                ),
+            )
 
             val savedProduct = productJpaRepository.findById(product.id)
             val savedStock = productStockJpaRepository.findById(product.id).orElseThrow()
@@ -40,8 +50,15 @@ class ProductFacadeIntegrationTest
 
         @Test
         fun `초기_재고가_유효하지_않으면_상품과_재고가_저장되지_않는다`() {
+            val brand = brandService.register(브랜드_등록_커맨드())
+
             val ex = assertThrows<CoreException> {
-                productFacade.registerProduct(상품_등록_커맨드(initialStock = -1))
+                productFacade.registerProduct(
+                    상품_등록_커맨드(
+                        brandId = brand.id,
+                        initialStock = -1,
+                    ),
+                )
             }
 
             assertThat(ex.errorType).isEqualTo(ErrorType.BAD_REQUEST)

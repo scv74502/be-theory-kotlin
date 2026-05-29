@@ -1,5 +1,6 @@
 package com.loopers.domain.product.application
 
+import com.loopers.domain.brand.application.service.BrandService
 import com.loopers.domain.product.application.command.ProductRegisterCommand
 import com.loopers.domain.product.application.command.ProductSearchCommand
 import com.loopers.domain.product.application.command.ProductUpdateCommand
@@ -13,11 +14,13 @@ import org.springframework.transaction.annotation.Transactional
 
 @Component
 class ProductFacade(
+    private val brandService: BrandService,
     private val productService: ProductService,
     private val stockService: StockService,
 ) {
     @Transactional
     fun registerProduct(command: ProductRegisterCommand): ProductInfo {
+        brandService.findById(command.brandId)
         val product = productService.register(command)
         stockService.initialize(
             productId = product.id,
@@ -35,8 +38,11 @@ class ProductFacade(
         productService.softDelete(productId)
     }
 
-    fun getProduct(productId: Long): ProductDetailInfo =
-        productService.findById(productId).let { ProductDetailInfo.from(it) }
+    fun getProduct(productId: Long): ProductDetailInfo {
+        val product = productService.findById(productId)
+        val brand = brandService.findById(product.brandId)
+        return ProductDetailInfo.from(product, brand)
+    }
 
     fun findProducts(command: ProductSearchCommand): List<ProductSummaryInfo> =
         productService.findProducts(command).map { ProductSummaryInfo.from(it) }

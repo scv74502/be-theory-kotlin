@@ -1,5 +1,7 @@
 package com.loopers.domain.product.unit
 
+import com.loopers.domain.brand.application.service.BrandService
+import com.loopers.domain.brand.support.BrandSteps.Companion.브랜드_도메인_생성
 import com.loopers.domain.product.application.ProductFacade
 import com.loopers.domain.product.application.command.ProductSearchCommand
 import com.loopers.domain.product.application.info.ProductDetailInfo
@@ -19,9 +21,11 @@ import org.junit.jupiter.api.Test
 class ProductFacadeTest {
     @Test
     fun `상품_등록_결과를_Info로_반환한다`() {
+        val brandService = mockk<BrandService>()
         val productService = mockk<ProductService>()
         val stockService = mockk<StockService>()
-        val productFacade = ProductFacade(productService, stockService)
+        val productFacade = ProductFacade(brandService, productService, stockService)
+        every { brandService.findById(10L) } returns 브랜드_도메인_생성(id = 10L)
         every { productService.register(상품_등록_커맨드()) } returns 상품_도메인_생성(id = 기본_상품_ID)
         every { stockService.initialize(기본_상품_ID, 10L) } returns 재고_도메인_생성(productId = 기본_상품_ID)
 
@@ -34,10 +38,12 @@ class ProductFacadeTest {
 
     @Test
     fun `상품_등록_시_초기_재고를_함께_생성한다`() {
+        val brandService = mockk<BrandService>()
         val productService = mockk<ProductService>()
         val stockService = mockk<StockService>()
-        val productFacade = ProductFacade(productService, stockService)
+        val productFacade = ProductFacade(brandService, productService, stockService)
         val command = 상품_등록_커맨드(initialStock = 15)
+        every { brandService.findById(10L) } returns 브랜드_도메인_생성(id = 10L)
         every { productService.register(command) } returns 상품_도메인_생성(id = 기본_상품_ID)
         every { stockService.initialize(기본_상품_ID, 15) } returns 재고_도메인_생성(
             productId = 기본_상품_ID,
@@ -47,6 +53,7 @@ class ProductFacadeTest {
         productFacade.registerProduct(command)
 
         verifySequence {
+            brandService.findById(10L)
             productService.register(command)
             stockService.initialize(기본_상품_ID, 15)
         }
@@ -54,23 +61,27 @@ class ProductFacadeTest {
 
     @Test
     fun `상품_상세_결과를_Info로_반환한다`() {
+        val brandService = mockk<BrandService>()
         val productService = mockk<ProductService>()
         val stockService = mockk<StockService>()
-        val productFacade = ProductFacade(productService, stockService)
+        val productFacade = ProductFacade(brandService, productService, stockService)
         every { productService.findById(기본_상품_ID) } returns 상품_도메인_생성(id = 기본_상품_ID)
+        every { brandService.findById(10L) } returns 브랜드_도메인_생성(id = 10L)
 
         val info = productFacade.getProduct(기본_상품_ID)
 
         assertThat(info).isInstanceOf(ProductDetailInfo::class.java)
         assertThat(info.id).isEqualTo(기본_상품_ID)
         assertThat(info.brandId).isEqualTo(10L)
+        assertThat(info.brandName).isEqualTo("기본 브랜드")
     }
 
     @Test
     fun `상품_목록_결과를_Info_목록으로_반환한다`() {
+        val brandService = mockk<BrandService>()
         val productService = mockk<ProductService>()
         val stockService = mockk<StockService>()
-        val productFacade = ProductFacade(productService, stockService)
+        val productFacade = ProductFacade(brandService, productService, stockService)
         val command = ProductSearchCommand(brandId = 10L)
         every { productService.findProducts(command) } returns listOf(
             상품_도메인_생성(id = 2L),
