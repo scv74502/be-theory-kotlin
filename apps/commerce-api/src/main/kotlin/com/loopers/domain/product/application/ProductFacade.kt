@@ -3,7 +3,9 @@ package com.loopers.domain.product.application
 import com.loopers.domain.product.application.command.ProductRegisterCommand
 import com.loopers.domain.product.application.command.ProductSearchCommand
 import com.loopers.domain.product.application.command.ProductUpdateCommand
+import com.loopers.domain.product.application.info.ProductDetailInfo
 import com.loopers.domain.product.application.info.ProductInfo
+import com.loopers.domain.product.application.info.ProductSummaryInfo
 import com.loopers.domain.product.application.service.ProductService
 import com.loopers.domain.product.application.service.StockService
 import org.springframework.stereotype.Component
@@ -33,9 +35,9 @@ class ProductFacade(
         productService.softDelete(productId)
     }
 
-    fun getProduct(productId: Long): ProductInfo =
-        productService.findById(productId).let { ProductInfo.from(it) }
+    fun getProduct(productId: Long): ProductDetailInfo =
+        productService.findById(productId).let { ProductDetailInfo.from(it) }
 
-    fun findProducts(command: ProductSearchCommand): List<ProductInfo> =
-        productService.findProducts(command).map { ProductInfo.from(it) }
+    fun findProducts(command: ProductSearchCommand): List<ProductSummaryInfo> =
+        productService.findProducts(command).map { ProductSummaryInfo.from(it) }
 }

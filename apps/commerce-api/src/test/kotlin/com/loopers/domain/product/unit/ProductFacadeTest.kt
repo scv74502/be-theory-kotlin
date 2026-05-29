@@ -2,6 +2,8 @@ package com.loopers.domain.product.unit
 
 import com.loopers.domain.product.application.ProductFacade
 import com.loopers.domain.product.application.command.ProductSearchCommand
+import com.loopers.domain.product.application.info.ProductDetailInfo
+import com.loopers.domain.product.application.info.ProductSummaryInfo
 import com.loopers.domain.product.application.service.ProductService
 import com.loopers.domain.product.application.service.StockService
 import com.loopers.domain.product.support.ProductSteps.Companion.기본_상품_ID
@@ -59,6 +61,7 @@ class ProductFacadeTest {
 
         val info = productFacade.getProduct(기본_상품_ID)
 
+        assertThat(info).isInstanceOf(ProductDetailInfo::class.java)
         assertThat(info.id).isEqualTo(기본_상품_ID)
         assertThat(info.brandId).isEqualTo(10L)
     }
@@ -76,6 +79,7 @@ class ProductFacadeTest {
 
         val infos = productFacade.findProducts(command)
 
+        assertThat(infos.first()).isInstanceOf(ProductSummaryInfo::class.java)
         assertThat(infos.map { it.id }).containsExactly(2L, 1L)
     }
 }
